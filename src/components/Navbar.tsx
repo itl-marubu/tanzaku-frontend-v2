@@ -21,7 +21,7 @@ export const Navbar: React.FC = () => {
               fontSize: "24px",
               fontWeight: 700,
               fontFamily: "var(--font-metropolis), sans-serif",
-            })
+            }),
           )}
         >
           短冊

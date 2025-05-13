@@ -37,12 +37,12 @@ export type User = {
 //   return response as User | null
 // }
 
-export const validateUser = async (token: string): Promise<boolean> => {
-  const user = await getUserInfo(token);
-  return user !== null;
-};
+// export const validateUser = async (token: string): Promise<boolean> => {
+//   const user = await getUserInfo(token);
+//   return user !== null;
+// };
 
-export const isAdmin = async (token: string): Promise<boolean> => {
-  const user = await getUserInfo(token);
-  return user?.role === "ADMIN";
-};
+// export const isAdmin = async (token: string): Promise<boolean> => {
+//   const user = await getUserInfo(token);
+//   return user?.role === "ADMIN";
+// };
