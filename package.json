@@ -1,0 +1,49 @@
+{
+  "name": "tanzaku-frontend-v2",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "pnpm biome lint src",
+    "format": "pnpm biome format src",
+    "typecheck": "tsc --noEmit",
+    "fix": "biome check --write src",
+    "build-opennextjs": "opennextjs-cloudflare build",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "gen:cf-type": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "gen:panda": "panda codegen",
+    "gen": "run-p gen:*",
+    "prepare": "pnpm gen"
+  },
+  "dependencies": {
+    "@next/third-parties": "^15.3.2",
+    "@opennextjs/cloudflare": "1.0.0-beta.4",
+    "@tabler/icons-react": "^3.31.0",
+    "jotai": "^2.12.4",
+    "next": "15.3.1",
+    "openapi-fetch": "^0.14.0",
+    "openapi-typescript": "^7.8.0",
+    "react": "^19.1.0",
+    "react-aria-components": "^1.8.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@cloudflare/workers-types": "^4.20250506.0",
+    "@pandacss/dev": "^0.53.6",
+    "@types/node": "^20.17.41",
+    "@types/react": "^19.1.3",
+    "@types/react-dom": "^19.1.3",
+    "clsx": "^2.1.1",
+    "npm-run-all2": "^8.0.1",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.14.2"
+  },
+  "volta": {
+    "node": "22.15.0",
+    "pnpm": "10.10.0"
+  }
+}

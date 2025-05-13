@@ -1,0 +1,334 @@
+openapi: 3.0.0
+info:
+  title: Tanzaku API
+  version: 1.0.0
+  description: tanzakuアプリケーションのAPI仕様
+  contact:
+    name: Fuminori Ogawa
+    email: fuminori@mizphses.com
+
+tags:
+  - name: tanzaku
+    description: tanzakuの操作に関するエンドポイント
+  - name: accounts
+    description: アカウント管理に関するエンドポイント
+  - name: admin
+    description: 管理者用エンドポイント
+
+servers:
+  - url: https://tanzakuv2.fuminori.workers.dev
+    description: 本番環境
+  - url: http://localhost:8787
+    description: ローカル環境
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Tanzaku:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        userName:
+          type: string
+
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+paths:
+  /tanzaku:
+    get:
+      tags:
+        - tanzaku
+      operationId: getTanzakuList
+      summary: tanzaku一覧を取得
+      description: 全てのtanzakuの一覧を取得します
+      responses:
+        "200":
+          description: tanzaku一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tanzaku"
+
+    post:
+      tags:
+        - tanzaku
+      operationId: createTanzaku
+      summary: 新しいtanzakuを作成
+      description: 新しいtanzakuを作成します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - userName
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                userName:
+                  type: string
+      responses:
+        "200":
+          description: 作成されたtanzaku
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tanzaku"
+
+  /tanzaku/{id}:
+    get:
+      tags:
+        - tanzaku
+      operationId: getTanzakuById
+      summary: 特定のtanzakuを取得
+      description: 指定されたIDのtanzakuの詳細を取得します
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: tanzakuの詳細
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tanzaku"
+        "404":
+          description: tanzakuが見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /tanzaku/client:
+    get:
+      tags:
+        - tanzaku
+      operationId: getRecentTanzaku
+      summary: 最新20件のtanzakuを取得
+      description: 最新の20件のtanzakuを取得します
+      responses:
+        "200":
+          description: tanzaku一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tanzaku"
+
+  /auth/signup:
+    post:
+      tags:
+        - accounts
+      operationId: signup
+      summary: 新規ユーザー登録
+      description: 新しいユーザーを登録します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: 認証トークン
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "500":
+          description: エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/login:
+    post:
+      tags:
+        - accounts
+      operationId: login
+      summary: ログイン
+      description: 既存ユーザーとしてログインします
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: 認証トークン
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "500":
+          description: エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/refresh:
+    post:
+      tags:
+        - accounts
+      operationId: refreshToken
+      summary: トークンのリフレッシュ
+      description: アクセストークンをリフレッシュします
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: 新しい認証トークン
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "401":
+          description: 無効なリフレッシュトークン
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /admin/tanzakus:
+    get:
+      tags:
+        - admin
+      operationId: adminGetAllTanzaku
+      summary: 管理者用：全tanzakuの取得
+      description: 管理者権限で全てのtanzakuを取得します
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: 全tanzaku一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tanzaku"
+
+    post:
+      tags:
+        - admin
+      operationId: adminEditTanzaku
+      summary: 管理者用：tanzakuの編集
+      description: 管理者権限でtanzakuを編集または削除します
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                oneOf:
+                  - type: object
+                    required:
+                      - id
+                      - operation
+                    properties:
+                      id:
+                        type: string
+                      operation:
+                        type: string
+                        enum: [delete]
+                  - type: object
+                    required:
+                      - id
+                      - operation
+                      - title
+                      - content
+                      - userName
+                    properties:
+                      id:
+                        type: string
+                      operation:
+                        type: string
+                        enum: [update]
+                      title:
+                        type: string
+                      content:
+                        type: string
+                      userName:
+                        type: string
+      responses:
+        "200":
+          description: 編集成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        "500":
+          description: エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"

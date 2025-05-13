@@ -1,0 +1,61 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  pull-requests: write
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+      - run: pnpm install
+      - run: pnpm run build-opennextjs
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: ".open-next"
+
+  release:
+    runs-on: ubuntu-latest
+    name: Release
+    outputs:
+      release_tag: ${{ steps.release_tag.outputs.VERSION }}
+    needs: deploy
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate release tag
+        id: release_tag
+        run: |
+          VERSION=$(date +'%Y.%m.%d.%H%M')
+          echo "VERSION=v$VERSION" >> $GITHUB_OUTPUT
+        env:
+          TZ: "Asia/Tokyo"
+
+      - name: Release
+        run: |
+          gh release create ${{ steps.release_tag.outputs.VERSION }} \
+            --title "Release ${{ steps.release_tag.outputs.VERSION }}" \
+            --generate-notes \
+            --prerelease=false \
+            --target main \
+            --latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

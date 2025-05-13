@@ -1,0 +1,16 @@
+{
+  "main": ".open-next/worker.js",
+  "name": "tanzaku-frontend-v2",
+  "compatibility_date": "2025-03-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "routes": [
+    {
+      "pattern": "tanzaku.mizphses.com",
+      "custom_domain": true
+    }
+  ]
+}
