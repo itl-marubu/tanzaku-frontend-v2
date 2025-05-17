@@ -10,11 +10,8 @@ type tanzakuType = {
   textLine2?: string;
   userName: string;
 };
-type Props = {
-  id: string;
-};
 
-export const TanzakuToImage: React.FC<Props> = ({ id }) => {
+export const TanzakuToImage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -68,7 +65,7 @@ export const TanzakuToImage: React.FC<Props> = ({ id }) => {
           0,
           0,
           width as number,
-          height as number,
+          height as number
         );
       }
     }

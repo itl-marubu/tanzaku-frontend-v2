@@ -4,10 +4,6 @@ import { css } from "styled-system/css";
 import { Logo } from "./Logo";
 import { QrCode } from "./qrcode";
 
-type Props = {
-  id: string;
-};
-
 type projectData = {
   name: string;
   description: string;
@@ -15,7 +11,7 @@ type projectData = {
   noticeQR?: string;
 };
 
-export const MetaInfo: React.FC<Props> = ({ id }) => {
+export const MetaInfo: React.FC = () => {
   const songUrl = "/song.webm";
   const [projectData, setProjectData] = useState({} as projectData);
 
