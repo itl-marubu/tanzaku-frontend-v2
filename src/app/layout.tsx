@@ -33,7 +33,7 @@ export default function RootLayout({
           lexend.variable,
           css({
             backgroundColor: "#f5f5f5",
-          })
+          }),
         )}
       >
         <div
