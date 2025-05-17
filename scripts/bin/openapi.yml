@@ -34,8 +34,6 @@ components:
       properties:
         id:
           type: string
-        title:
-          type: string
         content:
           type: string
         userName:
@@ -86,12 +84,9 @@ paths:
             schema:
               type: object
               required:
-                - title
                 - content
                 - userName
               properties:
-                title:
-                  type: string
                 content:
                   type: string
                 userName:
@@ -301,7 +296,6 @@ paths:
                     required:
                       - id
                       - operation
-                      - title
                       - content
                       - userName
                     properties:
@@ -310,8 +304,6 @@ paths:
                       operation:
                         type: string
                         enum: [update]
-                      title:
-                        type: string
                       content:
                         type: string
                       userName:

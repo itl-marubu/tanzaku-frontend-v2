@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  IconBrandGithubFilled,
-  IconBrandGoogleFilled,
-} from "@tabler/icons-react";
+import { IconBrandGoogleFilled } from "@tabler/icons-react";
 import { Link } from "react-aria-components";
 import { css } from "styled-system/css";
 

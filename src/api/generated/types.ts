@@ -158,7 +158,6 @@ export interface components {
   schemas: {
     Tanzaku: {
       id?: string;
-      title?: string;
       content?: string;
       userName?: string;
     };
@@ -208,7 +207,6 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          title: string;
           content: string;
           userName: string;
         };
@@ -425,7 +423,6 @@ export interface operations {
               id: string;
               /** @enum {string} */
               operation: "update";
-              title: string;
               content: string;
               userName: string;
             }

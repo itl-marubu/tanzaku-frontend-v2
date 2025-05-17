@@ -8,6 +8,7 @@ export const Footer: React.FC = () => {
         padding: "30px 0",
         display: "flex",
         flexDirection: "column",
+        marginX: "20px",
         alignItems: "center",
         md: {
           flexDirection: "row",
