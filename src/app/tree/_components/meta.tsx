@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
+import { css } from "styled-system/css";
 import { Logo } from "./Logo";
 import { QrCode } from "./qrcode";
-import { css } from "styled-system/css";
 
 type Props = {
   id: string;

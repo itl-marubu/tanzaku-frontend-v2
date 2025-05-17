@@ -6,7 +6,7 @@ type ColorProps = {
 
 export const Logo = forwardRef<SVGSVGElement, ColorProps>(function Tanzaku(
   { logoColor, ...props }: ColorProps,
-  ref
+  ref,
 ) {
   return (
     <svg

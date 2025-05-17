@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { CreateTanzaku } from "@/components/createTanzaku";
 import { getRecentTanzaku } from "@/api/client";
+import { CreateTanzaku } from "@/components/createTanzaku";
+import { useEffect, useRef, useState } from "react";
 
 type tanzakuType = {
   id: string;
@@ -68,7 +68,7 @@ export const TanzakuToImage: React.FC<Props> = ({ id }) => {
           0,
           0,
           width as number,
-          height as number
+          height as number,
         );
       }
     }

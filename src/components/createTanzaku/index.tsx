@@ -82,5 +82,5 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
         {...props}
       />
     );
-  }
+  },
 );
