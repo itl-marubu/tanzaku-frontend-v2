@@ -65,7 +65,7 @@ export const TanzakuToImage: React.FC = () => {
           0,
           0,
           width as number,
-          height as number
+          height as number,
         );
       }
     }
