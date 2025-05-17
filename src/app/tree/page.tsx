@@ -8,7 +8,7 @@ export default function TanzakuShow() {
     () => import("./_components/meta").then((mod) => mod.MetaInfo),
     {
       ssr: false,
-    }
+    },
   );
   return (
     <main className={styles.main}>

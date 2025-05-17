@@ -1,5 +1,5 @@
-import { css } from "styled-system/css";
 import { useEffect } from "react";
+import { css } from "styled-system/css";
 
 type ToastProps = {
   message: string;

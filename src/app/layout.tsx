@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Lexend, Noto_Sans_JP, Yuji_Syuku } from "next/font/google";
 import "./globals.css";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import clsx from "clsx";
 import localFont from "next/font/local";
 import { css } from "../../styled-system/css";
-import { GoogleAnalytics } from "@next/third-parties/google";
 
 const nsJp = Noto_Sans_JP({
   subsets: ["latin"],
@@ -54,7 +54,7 @@ export default function RootLayout({
           yujiShuku.variable,
           css({
             backgroundColor: "#f5f5f5",
-          })
+          }),
         )}
       >
         <div

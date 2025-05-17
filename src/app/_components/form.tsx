@@ -1,11 +1,11 @@
 "use client";
 import { createTanzaku } from "@/api/client";
+import { sendGAEvent } from "@next/third-parties/google";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { css } from "styled-system/css";
 import { PreviewModal } from "./PreviewModal";
 import { Toast } from "./Toast";
-import { sendGAEvent } from "@next/third-parties/google";
 
 const spin = {
   animation: "spin 1s linear infinite",
