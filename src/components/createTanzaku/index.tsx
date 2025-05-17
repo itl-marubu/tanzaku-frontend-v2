@@ -10,7 +10,7 @@ type TanzakuProps = {
 } & React.HTMLAttributes<HTMLCanvasElement>;
 
 export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
-  function CreateTanzaku({ textLine1, textLine2, nameLine, ...props }) {
+  function CreateTanzaku({ textLine1, textLine2, nameLine, ...props }, ref) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [imageLoaded, setImageLoaded] = useState(false);
@@ -68,12 +68,19 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
 
     return (
       <canvas
-        ref={canvasRef}
+        ref={(node) => {
+          canvasRef.current = node;
+          if (typeof ref === "function") {
+            ref(node);
+          } else if (ref) {
+            ref.current = node;
+          }
+        }}
         width={300}
         height={500}
         className={styles.animated}
         {...props}
       />
     );
-  },
+  }
 );

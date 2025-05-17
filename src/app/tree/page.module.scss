@@ -1,0 +1,48 @@
+.main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-noto-sans-jp), sans-serif;
+  color: #fff;
+  background-color: #000;
+
+  .sasa {
+    bottom: 0;
+    left: 0;
+    display: absolute;
+    width: 110vh;
+    width: fixed;
+    height: 100vh;
+    transform-origin: 0% 100%;
+    animation: yureru 8s infinite alternate;
+  }
+
+  .tanzakuIntro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@keyframes yureru {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  20% {
+    transform: rotate(-1deg);
+  }
+
+  80% {
+    transform: rotate(0.1deg);
+  }
+
+  100% {
+    transform: rotate(0.3deg);
+  }
+}
