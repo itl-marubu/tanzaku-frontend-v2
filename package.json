@@ -29,7 +29,8 @@
     "react": "^19.1.0",
     "react-aria-components": "^1.8.0",
     "react-dom": "^19.1.0",
-    "react-hook-form": "^7.56.4"
+    "react-hook-form": "^7.56.4",
+    "sass": "^1.89.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
