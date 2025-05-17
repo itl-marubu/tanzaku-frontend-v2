@@ -11,5 +11,5 @@ export default function TanzakuViewLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return { children };
+  return children;
 }
