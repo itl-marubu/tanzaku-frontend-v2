@@ -4,6 +4,7 @@ import "./globals.css";
 import clsx from "clsx";
 import localFont from "next/font/local";
 import { css } from "../../styled-system/css";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const nsJp = Noto_Sans_JP({
   subsets: ["latin"],
@@ -34,6 +35,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

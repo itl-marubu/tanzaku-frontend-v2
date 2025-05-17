@@ -1,9 +1,19 @@
 "use client";
 import { createTanzaku } from "@/api/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { css } from "styled-system/css";
 import { PreviewModal } from "./PreviewModal";
+import { Toast } from "./Toast";
+import { sendGAEvent } from "@next/third-parties/google";
+
+const spin = {
+  animation: "spin 1s linear infinite",
+  "@keyframes spin": {
+    "0%": { transform: "rotate(0deg)" },
+    "100%": { transform: "rotate(360deg)" },
+  },
+};
 
 type FormData = {
   name: string;
@@ -14,6 +24,9 @@ export const Form: React.FC = () => {
   const { register, handleSubmit, reset, watch } = useForm<FormData>();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState<FormData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState(false);
 
   const message = watch("message", "");
   const remainingChars = 14 - (message?.length || 0);
@@ -21,19 +34,62 @@ export const Form: React.FC = () => {
   const remainingNameChars = 8 - (name?.length || 0);
 
   const onSubmit = async (data: FormData) => {
-    const res = await createTanzaku({
-      content: data.message,
-      userName: data.name,
-    });
-    console.log(res);
-    reset();
-    setIsPreviewOpen(false);
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      const res = await createTanzaku({
+        content: data.message,
+        userName: data.name,
+      });
+      console.log(res);
+
+      if (!res?.id) {
+        console.error("Failed to create tanzaku:", res);
+        setError("短冊の送信に失敗しました。もう一度お試しください。");
+        setIsPreviewOpen(false);
+        sendGAEvent("event", "failed", {
+          event_category: "result",
+          event_label: "failed",
+        });
+        return;
+      }
+
+      reset();
+      setIsPreviewOpen(false);
+      if (res.validationResult === 1) {
+        console.error("Validation failed:", res);
+        sendGAEvent("event", "validation_failed", {
+          event_category: "result",
+          event_label: "done_v1",
+          value: res.validationResult,
+        });
+      } else {
+        sendGAEvent("event", "submit_tanzaku_form", {
+          event_category: "result",
+          event_label: "done",
+        });
+      }
+      setShowToast(true);
+    } catch (error) {
+      console.error(error);
+      setError("短冊の送信に失敗しました。もう一度お試しください。");
+      setIsPreviewOpen(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handlePreview = (data: FormData) => {
     setPreviewData(data);
     setIsPreviewOpen(true);
   };
+
+  useEffect(() => {
+    sendGAEvent("event", "view_tanzaku_form", {
+      event_category: "result",
+      event_label: "view",
+    });
+  }, []);
 
   return (
     <>
@@ -46,6 +102,21 @@ export const Form: React.FC = () => {
           alignItems: "center",
         })}
       >
+        {error && (
+          <div
+            className={css({
+              color: "red",
+              backgroundColor: "#ffebee",
+              padding: "8px 16px",
+              borderRadius: "4px",
+              width: "100%",
+              textAlign: "center",
+              marginBottom: "8px",
+            })}
+          >
+            {error}
+          </div>
+        )}
         <div
           className={css({
             display: "flex",
@@ -123,14 +194,16 @@ export const Form: React.FC = () => {
         </div>
         <button
           type="submit"
+          disabled={isSubmitting}
           className={css({
             background: "#000",
             color: "#fff",
             padding: "8px 16px",
             borderRadius: "4px",
-            cursor: "pointer",
+            cursor: isSubmitting ? "not-allowed" : "pointer",
+            opacity: isSubmitting ? 0.7 : 1,
             _hover: {
-              background: "#333",
+              background: isSubmitting ? "#000" : "#333",
             },
             marginTop: "10px",
           })}
@@ -145,8 +218,14 @@ export const Form: React.FC = () => {
           onConfirm={() => onSubmit(previewData)}
           name={previewData.name}
           message={previewData.message}
+          isSubmitting={isSubmitting}
         />
       )}
+      <Toast
+        message="短冊が投稿されました！"
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
+      />
     </>
   );
 };

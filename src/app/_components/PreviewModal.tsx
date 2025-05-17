@@ -1,12 +1,21 @@
 import { CreateTanzaku } from "@/components/createTanzaku";
 import { css } from "styled-system/css";
 
+const spinAnimation = {
+  animation: "spin 1s linear infinite",
+  "@keyframes spin": {
+    from: { transform: "rotate(0deg)" },
+    to: { transform: "rotate(360deg)" },
+  },
+} as const;
+
 type PreviewModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   name: string;
   message: string;
+  isSubmitting: boolean;
 };
 
 export const PreviewModal: React.FC<PreviewModalProps> = ({
@@ -15,6 +24,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
   onConfirm,
   name,
   message,
+  isSubmitting,
 }) => {
   if (!isOpen) return null;
 
@@ -115,13 +125,15 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
           <button
             type="button"
             onClick={onClose}
+            disabled={isSubmitting}
             className={css({
               padding: "8px 16px",
               border: "1px solid #ccc",
               borderRadius: "4px",
-              cursor: "pointer",
+              cursor: isSubmitting ? "not-allowed" : "pointer",
+              opacity: isSubmitting ? 0.7 : 1,
               _hover: {
-                backgroundColor: "#f0f0f0",
+                backgroundColor: isSubmitting ? "transparent" : "#f0f0f0",
               },
             })}
           >
@@ -130,18 +142,42 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
           <button
             type="button"
             onClick={onConfirm}
+            disabled={isSubmitting}
             className={css({
               padding: "8px 16px",
               backgroundColor: "#000",
               color: "white",
               borderRadius: "4px",
-              cursor: "pointer",
+              cursor: isSubmitting ? "not-allowed" : "pointer",
+              opacity: isSubmitting ? 0.7 : 1,
               _hover: {
-                backgroundColor: "#333",
+                backgroundColor: isSubmitting ? "#000" : "#333",
               },
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
             })}
           >
-            送信する
+            {isSubmitting ? (
+              <>
+                <div
+                  className={css({
+                    width: "16px",
+                    height: "16px",
+                    border: "2px solid #fff",
+                    borderTop: "2px solid transparent",
+                    borderRadius: "50%",
+                    animation: "spin 1s linear infinite",
+                  })}
+                  style={{
+                    animation: "spin 1s linear infinite",
+                  }}
+                />
+                送信中...
+              </>
+            ) : (
+              "送信する"
+            )}
           </button>
         </div>
       </div>

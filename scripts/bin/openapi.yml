@@ -38,6 +38,9 @@ components:
           type: string
         userName:
           type: string
+        validationResult:
+          type: number
+          enum: [0, 1]
 
     AuthTokens:
       type: object
@@ -89,6 +92,8 @@ paths:
               properties:
                 content:
                   type: string
+                  maxLength: 14
+                  description: 14文字以内のメッセージ
                 userName:
                   type: string
       responses:
