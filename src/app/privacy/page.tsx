@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { css } from "../../../styled-system/css";
 export const metadata: Metadata = {
-  title: "個人情報保護方針と外部送信規律に関する表示 | mizphses.com",
+  title: "個人情報保護方針と外部送信規律に関する表示 | iTL七夕祭2025",
   description: "個人情報保護方針と外部送信規律に関する表示です。",
 };
 
@@ -49,7 +49,7 @@ export default function GtmInfoPage() {
           個人情報保護方針
         </h2>
         <p>
-          このウェブサイトの運営者（以下運営者）は、本ウェブサイト上で提供するサービス（以下,「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。
+          iTL七夕祭2025運営者（以下運営者）は、本ウェブサイト上で提供するサービス（以下,「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。
         </p>
         <h3>第1条（個人情報）</h3>
         <p>
@@ -184,7 +184,7 @@ export default function GtmInfoPage() {
         </p>
         <p>◎部 中央大学国際情報学部 行動企画サークル</p>
         <p>
-          Eメールアドレス：mizphses+privacy@gmail.com （代行窓口/担当:尾川）
+          Eメールアドレス：itl.marubu@gmail.com
         </p>
         <p
           className={css({
