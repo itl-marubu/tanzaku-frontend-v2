@@ -183,9 +183,7 @@ export default function GtmInfoPage() {
           本ポリシーに関するお問い合わせは、下記の窓口までお願いいたします。
         </p>
         <p>◎部 中央大学国際情報学部 行動企画サークル</p>
-        <p>
-          Eメールアドレス：itl.marubu@gmail.com
-        </p>
+        <p>Eメールアドレス：itl.marubu@gmail.com</p>
         <p
           className={css({
             textAlign: "right",

@@ -351,7 +351,6 @@ export default function GtmInfoPage() {
             margin: "20px 0",
           })}
         >
-          
           <Footer />
         </section>
       </div>
