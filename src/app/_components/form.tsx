@@ -1,13 +1,13 @@
 "use client";
 import { createTanzaku } from "@/api/client";
+import { CreateTanzaku } from "@/components/createTanzaku";
 import { sendGAEvent } from "@next/third-parties/google";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { css } from "styled-system/css";
 import { PreviewModal } from "./PreviewModal";
 import { Toast } from "./Toast";
 import { TwitterDialog } from "./TwitterDialog";
-import { CreateTanzaku } from "@/components/createTanzaku";
 
 const spin = {
   animation: "spin 1s linear infinite",
@@ -30,7 +30,9 @@ export const Form: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [showTwitterDialog, setShowTwitterDialog] = useState(false);
-  const [twitterDialogData, setTwitterDialogData] = useState<FormData | null>(null);
+  const [twitterDialogData, setTwitterDialogData] = useState<FormData | null>(
+    null,
+  );
   const [twitterImageUrl, setTwitterImageUrl] = useState<string | null>(null);
   const tanzakuCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -241,7 +243,16 @@ export const Form: React.FC = () => {
         isVisible={showToast}
         onClose={() => setShowToast(false)}
       />
-      <div style={{ position: "absolute", left: -9999, top: -9999, width: 0, height: 0, overflow: "hidden" }}>
+      <div
+        style={{
+          position: "absolute",
+          left: -9999,
+          top: -9999,
+          width: 0,
+          height: 0,
+          overflow: "hidden",
+        }}
+      >
         <CreateTanzaku
           ref={tanzakuCanvasRef}
           textLine1={twitterDialogData?.message?.slice(0, 7) || ""}

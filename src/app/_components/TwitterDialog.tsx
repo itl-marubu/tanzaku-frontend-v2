@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { css } from "styled-system/css";
 
 type TwitterDialogProps = {
@@ -9,7 +9,13 @@ type TwitterDialogProps = {
   imageUrl?: string;
 };
 
-export const TwitterDialog: React.FC<TwitterDialogProps> = ({ isOpen, onClose, name, message, imageUrl }) => {
+export const TwitterDialog: React.FC<TwitterDialogProps> = ({
+  isOpen,
+  onClose,
+  name,
+  message,
+  imageUrl,
+}) => {
   if (!isOpen) return null;
 
   // テンプレート文
@@ -42,15 +48,37 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({ isOpen, onClose, n
           textAlign: "center",
         })}
       >
-        <h2 className={css({ fontSize: "20px", fontWeight: 700, marginBottom: "16px" })}>
+        <h2
+          className={css({
+            fontSize: "20px",
+            fontWeight: 700,
+            marginBottom: "16px",
+          })}
+        >
           Twitterでシェアしませんか？
         </h2>
-        <div className={css({ marginBottom: "16px", whiteSpace: "pre-line", fontSize: "15px", textAlign: "left" })}>
+        <div
+          className={css({
+            marginBottom: "16px",
+            whiteSpace: "pre-line",
+            fontSize: "15px",
+            textAlign: "left",
+          })}
+        >
           {tweetText}
         </div>
         {imageUrl && (
           <div className={css({ marginBottom: "12px" })}>
-            <img src={imageUrl} alt="短冊画像" style={{ width: 180, height: 300, borderRadius: 8, border: "1px solid #ccc" }} />
+            <img
+              src={imageUrl}
+              alt="短冊画像"
+              style={{
+                width: 180,
+                height: 300,
+                borderRadius: 8,
+                border: "1px solid #ccc",
+              }}
+            />
             <br />
             <a
               href={imageUrl}
@@ -88,6 +116,7 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({ isOpen, onClose, n
         </a>
         <br />
         <button
+          type="button"
           onClick={onClose}
           className={css({
             marginTop: "8px",
@@ -106,4 +135,4 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({ isOpen, onClose, n
       </div>
     </div>
   );
-}; 
+};
