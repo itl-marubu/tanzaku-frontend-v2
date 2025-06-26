@@ -22,6 +22,37 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({
   const tweetText = `#iTL七夕祭2025 に短冊を投稿しました！\nキャンパスロビーでご覧ください！\n@itl_marubu #iTL七夕祭\n\n「${message}」\n\nお名前：${name}`;
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
+  // Web Share APIを使用して共有
+  const handleWebShare = async () => {
+    if (navigator.share) {
+      try {
+        const shareData: ShareData = {
+          title: "iTL七夕祭2025 短冊投稿",
+          text: tweetText,
+        };
+
+        // 画像がある場合はファイルとして追加
+        if (imageUrl) {
+          try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], "tanzaku.png", { type: "image/png" });
+            shareData.files = [file];
+          } catch (error) {
+            console.error("画像の取得に失敗しました:", error);
+          }
+        }
+
+        await navigator.share(shareData);
+      } catch (error) {
+        console.error("共有に失敗しました:", error);
+      }
+    } else {
+      // Web Share APIがサポートされていない場合のフォールバック
+      alert("お使いのブラウザでは共有機能がサポートされていません。");
+    }
+  };
+
   return (
     <div
       className={css({
@@ -40,6 +71,7 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({
       <div
         className={css({
           backgroundColor: "white",
+          color: "#111",
           padding: "32px 24px 24px 24px",
           borderRadius: "10px",
           width: "90%",
@@ -55,28 +87,26 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({
             marginBottom: "16px",
           })}
         >
-          Twitterでシェアしませんか？
+          ご参加ありがとうございます。
+          <br />
+          ぜひSNSでシェアしてください！
         </h2>
-        <div
-          className={css({
-            marginBottom: "16px",
-            whiteSpace: "pre-line",
-            fontSize: "15px",
-            textAlign: "left",
-          })}
-        >
-          {tweetText}
-        </div>
+
         {imageUrl && (
-          <div className={css({ marginBottom: "12px" })}>
+          <div
+            className={css({
+              marginBottom: "12px",
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "column",
+            })}
+          >
             <img
               src={imageUrl}
               alt="短冊画像"
               style={{
                 width: 180,
                 height: 300,
-                borderRadius: 8,
-                border: "1px solid #ccc",
               }}
             />
             <br />
@@ -96,42 +126,47 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({
             </a>
           </div>
         )}
-        <a
-          href={tweetUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+        <div
           className={css({
-            display: "inline-block",
-            background: "#1da1f2",
-            color: "#fff",
-            padding: "10px 20px",
-            borderRadius: "5px",
-            fontWeight: 700,
-            textDecoration: "none",
-            marginBottom: "12px",
-            _hover: { background: "#0d8ddb" },
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
           })}
         >
-          Twitterで投稿する
-        </a>
-        <br />
-        <button
-          type="button"
-          onClick={onClose}
-          className={css({
-            marginTop: "8px",
-            padding: "8px 16px",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            background: "#fff",
-            color: "#333",
-            cursor: "pointer",
-            fontWeight: 500,
-            _hover: { background: "#f0f0f0" },
-          })}
-        >
-          閉じる
-        </button>
+          <a
+            href={tweetUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={css({
+              display: "inline-block",
+              background: "#000",
+              color: "#fff",
+              padding: "10px 20px",
+              borderRadius: "5px",
+              fontWeight: 700,
+              textDecoration: "none",
+              _hover: { background: "#333" },
+            })}
+          >
+            Xで投稿する
+          </a>
+          <button
+            type="button"
+            onClick={handleWebShare}
+            className={css({
+              background: "#000",
+              color: "#fff",
+              padding: "10px 20px",
+              borderRadius: "5px",
+              fontWeight: 700,
+              border: "none",
+              cursor: "pointer",
+              _hover: { background: "#333" },
+            })}
+          >
+            他のアプリで共有
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -10,6 +10,8 @@ export default function Home() {
         display: "flex",
         flexDirection: "column",
         minHeight: "100vh",
+        background: "#000",
+        color: "#fff",
       })}
     >
       <div
@@ -22,19 +24,20 @@ export default function Home() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          height: "70vh",
+          height: "90vh",
         })}
       >
         <div
           className={css({
-            background: "#fff",
+            background: "#000",
+            color: "#fff",
             padding: "20px",
             borderRadius: "10px",
             width: "100%",
           })}
         >
           <h1 className={css({ fontSize: "24px", fontWeight: 700 })}>
-            短冊の送信
+            iTL七夕祭に、あなたの短冊を飾りましょう。
           </h1>
           <div>
             <Form />

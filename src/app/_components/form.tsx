@@ -145,7 +145,7 @@ export const Form: React.FC = () => {
             htmlFor="message"
             className={css({ fontSize: "16px", fontWeight: "bold" })}
           >
-            メッセージ
+            短冊にかけるメッセージを教えてください。
           </label>
           <div
             className={css({
@@ -188,7 +188,7 @@ export const Form: React.FC = () => {
               htmlFor="name"
               className={css({ fontSize: "16px", fontWeight: "bold" })}
             >
-              名前
+              お名前を教えてください。
             </label>
             <input
               {...register("name", { maxLength: 8 })}
@@ -213,14 +213,15 @@ export const Form: React.FC = () => {
           type="submit"
           disabled={isSubmitting}
           className={css({
-            background: "#000",
-            color: "#fff",
+            background: "#fff",
+            color: "#000",
             padding: "8px 16px",
             borderRadius: "4px",
             cursor: isSubmitting ? "not-allowed" : "pointer",
             opacity: isSubmitting ? 0.7 : 1,
+            border: "1px solid #000",
             _hover: {
-              background: isSubmitting ? "#000" : "#333",
+              background: isSubmitting ? "#fff" : "#f0f0f0",
             },
             marginTop: "10px",
           })}

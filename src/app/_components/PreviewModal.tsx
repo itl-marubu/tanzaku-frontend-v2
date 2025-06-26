@@ -1,4 +1,5 @@
 import { CreateTanzaku } from "@/components/createTanzaku";
+import { useEffect, useRef } from "react";
 import { css } from "styled-system/css";
 
 const spinAnimation = {
@@ -34,6 +35,12 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
       ? [message.slice(0, 7), message.slice(7)]
       : [message, ""];
 
+  // CreateTanzaku用のrefを用意
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // モーダルが開くたびにCanvasをリセット（keyで強制再生成）
+  const tanzakuKey = name + textLine1 + textLine2 + isOpen;
+
   return (
     <div
       className={css({
@@ -52,10 +59,11 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
       <div
         className={css({
           backgroundColor: "white",
+          color: "#111",
           padding: "24px",
-          borderRadius: "8px",
+          borderRadius: "10px",
           width: "90%",
-          maxWidth: "500px",
+          maxWidth: "400px",
         })}
       >
         <h2
@@ -65,7 +73,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
             marginBottom: "16px",
           })}
         >
-          プレビュー
+          投稿確認
         </h2>
         <div
           className={css({
@@ -78,11 +86,12 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
         >
           <div
             className={css({
-              transform: "scale(0.6)",
               transformOrigin: "top center",
             })}
           >
             <CreateTanzaku
+              key={tanzakuKey}
+              ref={previewCanvasRef}
               textLine1={textLine1}
               textLine2={textLine2}
               nameLine={name}
@@ -146,7 +155,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
             className={css({
               padding: "8px 16px",
               backgroundColor: "#000",
-              color: "white",
+              color: "#fff",
               borderRadius: "4px",
               cursor: isSubmitting ? "not-allowed" : "pointer",
               opacity: isSubmitting ? 0.7 : 1,
