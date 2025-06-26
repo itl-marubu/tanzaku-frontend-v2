@@ -12,5 +12,10 @@
       "pattern": "tanzaku.mizphses.com",
       "custom_domain": true
     }
-  ]
+  ],
+  "env": {
+    "preview": {
+      "name": "tanzaku-frontend-v2-preview"
+    }
+  }
 }
