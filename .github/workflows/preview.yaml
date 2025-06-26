@@ -34,14 +34,14 @@ jobs:
       - name: Build for Cloudflare
         run: pnpm run build-opennextjs
 
-      - name: Upload and Deploy Preview Version
+      - name: Deploy Preview Version
         id: deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: ".open-next"
-          command: "deploy --env preview --tag pr-${{ github.event.number }} --message \"Preview for PR #${{ github.event.number }}\""
+          command: "versions upload --env preview --message \"Preview for PR #${{ github.event.number }} from branch ${{ github.head_ref }}\""
 
       - name: Extract deployment URL
         id: extract-url
