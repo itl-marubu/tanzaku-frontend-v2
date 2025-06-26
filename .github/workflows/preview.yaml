@@ -50,7 +50,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: ".open-next"
-          command: "versions deploy --env preview --percentage 100 --tag pr-${{ github.event.number }}"
+          command: "versions deploy --env preview --percentage 100 --message 'Deploy PR #${{ github.event.number }}' --yes"
 
       - name: Extract deployment URL
         id: extract-url
