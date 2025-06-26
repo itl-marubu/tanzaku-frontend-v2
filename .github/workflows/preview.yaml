@@ -41,7 +41,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: ".open-next"
-          command: "versions upload --env preview --tag pr-${{ github.event.number }} --message 'Preview for PR #${{ github.event.number }}'"
+          command: "versions upload --env preview --tag pr-${{ github.event.number }} --message \"Preview for PR #${{ github.event.number }}\""
 
       - name: Deploy Preview Version
         id: deploy
