@@ -12,7 +12,6 @@ export default function Home() {
         minHeight: "100vh",
       })}
     >
-      <Navbar />
       <div
         className={css({
           width: "100%",

@@ -51,7 +51,11 @@ export const MetaInfo: React.FC = () => {
         }}
       >
         <Logo logoColor="#fff" />
-        <p style={{ fontSize: "2rem", fontWeight: 700 }}>注意事項を書く</p>
+        <p style={{ fontSize: "2rem", fontWeight: 700 }}>
+          時間経過で短冊が切り替わります。
+          <br />
+          どなたでもご参加ください！
+        </p>
         <div style={{ position: "fixed", bottom: "20px", right: "300px" }}>
           <h2
             className={css({
