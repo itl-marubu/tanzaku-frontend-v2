@@ -97,6 +97,7 @@ export const TanzakuToImage: React.FC = () => {
         }}
       />
       {tanzakuArray.map((tanzaku, index) => {
+        const positionIndex = index % positionArray.length;
         return (
           <CreateTanzaku
             key={tanzaku.id}
@@ -107,8 +108,8 @@ export const TanzakuToImage: React.FC = () => {
               position: "absolute",
               height: "220px",
               width: "auto",
-              left: positionArray[index].x,
-              top: positionArray[index].y,
+              left: positionArray[positionIndex].x,
+              top: positionArray[positionIndex].y,
             }}
           />
         );
