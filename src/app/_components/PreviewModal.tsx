@@ -64,6 +64,8 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
           borderRadius: "10px",
           width: "90%",
           maxWidth: "400px",
+          maxHeight: "85vh",
+          overflowY: "auto",
         })}
       >
         <h2

@@ -76,6 +76,8 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({
           borderRadius: "10px",
           width: "90%",
           maxWidth: "400px",
+          maxHeight: "85vh",
+          overflowY: "auto",
           boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
           textAlign: "center",
         })}
