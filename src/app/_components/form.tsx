@@ -1,11 +1,13 @@
 "use client";
 import { createTanzaku } from "@/api/client";
+import { CreateTanzaku } from "@/components/createTanzaku";
 import { sendGAEvent } from "@next/third-parties/google";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { css } from "styled-system/css";
 import { PreviewModal } from "./PreviewModal";
 import { Toast } from "./Toast";
+import { TwitterDialog } from "./TwitterDialog";
 
 const spin = {
   animation: "spin 1s linear infinite",
@@ -27,6 +29,12 @@ export const Form: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
+  const [showTwitterDialog, setShowTwitterDialog] = useState(false);
+  const [twitterDialogData, setTwitterDialogData] = useState<FormData | null>(
+    null,
+  );
+  const [twitterImageUrl, setTwitterImageUrl] = useState<string | null>(null);
+  const tanzakuCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const message = watch("message", "");
   const remainingChars = 14 - (message?.length || 0);
@@ -70,6 +78,8 @@ export const Form: React.FC = () => {
         });
       }
       setShowToast(true);
+      setTwitterDialogData(data);
+      setShowTwitterDialog(true);
     } catch (error) {
       console.error(error);
       setError("短冊の送信に失敗しました。もう一度お試しください。");
@@ -90,6 +100,13 @@ export const Form: React.FC = () => {
       event_label: "view",
     });
   }, []);
+
+  useEffect(() => {
+    if (showTwitterDialog && tanzakuCanvasRef.current && twitterDialogData) {
+      const url = tanzakuCanvasRef.current.toDataURL("image/png");
+      setTwitterImageUrl(url);
+    }
+  }, [showTwitterDialog, twitterDialogData]);
 
   return (
     <>
@@ -128,7 +145,7 @@ export const Form: React.FC = () => {
             htmlFor="message"
             className={css({ fontSize: "16px", fontWeight: "bold" })}
           >
-            メッセージ
+            短冊にかけるメッセージを教えてください。
           </label>
           <div
             className={css({
@@ -171,7 +188,7 @@ export const Form: React.FC = () => {
               htmlFor="name"
               className={css({ fontSize: "16px", fontWeight: "bold" })}
             >
-              名前
+              お名前を教えてください。
             </label>
             <input
               {...register("name", { maxLength: 8 })}
@@ -196,14 +213,15 @@ export const Form: React.FC = () => {
           type="submit"
           disabled={isSubmitting}
           className={css({
-            background: "#000",
-            color: "#fff",
+            background: "#fff",
+            color: "#000",
             padding: "8px 16px",
             borderRadius: "4px",
             cursor: isSubmitting ? "not-allowed" : "pointer",
             opacity: isSubmitting ? 0.7 : 1,
+            border: "1px solid #000",
             _hover: {
-              background: isSubmitting ? "#000" : "#333",
+              background: isSubmitting ? "#fff" : "#f0f0f0",
             },
             marginTop: "10px",
           })}
@@ -226,6 +244,32 @@ export const Form: React.FC = () => {
         isVisible={showToast}
         onClose={() => setShowToast(false)}
       />
+      <div
+        style={{
+          position: "absolute",
+          left: -9999,
+          top: -9999,
+          width: 0,
+          height: 0,
+          overflow: "hidden",
+        }}
+      >
+        <CreateTanzaku
+          ref={tanzakuCanvasRef}
+          textLine1={twitterDialogData?.message?.slice(0, 7) || ""}
+          textLine2={twitterDialogData?.message?.slice(7) || ""}
+          nameLine={twitterDialogData?.name || ""}
+        />
+      </div>
+      {showTwitterDialog && twitterDialogData && (
+        <TwitterDialog
+          isOpen={showTwitterDialog}
+          onClose={() => setShowTwitterDialog(false)}
+          name={twitterDialogData.name}
+          message={twitterDialogData.message}
+          imageUrl={twitterImageUrl || undefined}
+        />
+      )}
     </>
   );
 };
