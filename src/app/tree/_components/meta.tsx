@@ -51,7 +51,7 @@ export const MetaInfo: React.FC = () => {
         }}
       >
         <Logo logoColor="#fff" />
-        <p style={{ fontSize: "2rem", fontWeight: 700 }}>
+        <p style={{ fontSize: "2rem", fontWeight: 700, marginTop: "80px" }}>
           時間経過で短冊が切り替わります。
           <br />
           どなたでもご参加ください！
@@ -62,7 +62,7 @@ export const MetaInfo: React.FC = () => {
               marginBottom: "10px",
             })}
           >
-            短冊の投稿はこちらから
+            短冊の投稿はこちらから↓
           </h2>
           <QrCode url={`${currentDomain}`} />
         </div>
