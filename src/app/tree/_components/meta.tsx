@@ -50,13 +50,13 @@ export const MetaInfo: React.FC = () => {
           right: "10px",
         }}
       >
-        <Logo logoColor="#fff" />
+        <Logo logoColor="#fff" style={{ marginTop: "100px" }} />
         <p style={{ fontSize: "2rem", fontWeight: 700, marginTop: "80px" }}>
           時間経過で短冊が切り替わります。
           <br />
           どなたでもご参加ください！
         </p>
-        <div style={{ position: "fixed", bottom: "20px", right: "300px" }}>
+        <div style={{ position: "fixed", bottom: "20px", right: "390px" }}>
           <h2
             className={css({
               marginBottom: "10px",
@@ -64,7 +64,9 @@ export const MetaInfo: React.FC = () => {
           >
             短冊の投稿はこちらから↓
           </h2>
-          <QrCode url={`${currentDomain}`} />
+          <div style={{ marginBottom: "80px" }}>
+            <QrCode url={`${currentDomain}`} />
+          </div>
         </div>
       </div>
     </>
