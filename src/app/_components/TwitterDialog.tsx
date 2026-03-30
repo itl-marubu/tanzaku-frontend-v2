@@ -112,7 +112,11 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({
               flexDirection: "column",
             })}
           >
-            <img src={imageUrl} alt={`${config.itemName}画像`} style={imgStyle} />
+            <img
+              src={imageUrl}
+              alt={`${config.itemName}画像`}
+              style={imgStyle}
+            />
             <br />
             <a
               href={imageUrl}

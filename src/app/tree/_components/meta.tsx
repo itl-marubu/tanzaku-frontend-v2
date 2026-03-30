@@ -79,10 +79,20 @@ export const MetaInfo: React.FC = () => {
           <img
             src="/sakura-rogo.svg"
             alt="短冊の会　ロゴ"
-            style={{ width: 750, height: 300, marginTop: "100px", objectFit: "contain" }}
+            style={{
+              width: 750,
+              height: 300,
+              marginTop: "100px",
+              objectFit: "contain",
+            }}
           />
         ) : (
-          <Logo logoColor="#fff" width={750} height={300} style={{ marginTop: "100px" }} />
+          <Logo
+            logoColor="#fff"
+            width={750}
+            height={300}
+            style={{ marginTop: "100px" }}
+          />
         )}
         <p style={{ fontSize: "2rem", fontWeight: 700, marginTop: "80px" }}>
           時間経過で{config.itemName}が切り替わります。

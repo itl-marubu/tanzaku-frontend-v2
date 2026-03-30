@@ -2,8 +2,8 @@
 
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { useAtomValue } from "jotai";
 import { festivalModeAtom } from "@/lib/festivalModeAtom";
+import { useAtomValue } from "jotai";
 import { css } from "../../../styled-system/css";
 
 export default function AdminPage() {
@@ -26,7 +26,13 @@ export default function AdminPage() {
           padding: "40px 16px",
         })}
       >
-        <h1 className={css({ fontSize: "32px", fontWeight: 700, marginBottom: "32px" })}>
+        <h1
+          className={css({
+            fontSize: "32px",
+            fontWeight: 700,
+            marginBottom: "32px",
+          })}
+        >
           フェスティバル管理
         </h1>
 
@@ -41,7 +47,13 @@ export default function AdminPage() {
           })}
         >
           <div>
-            <p className={css({ fontSize: "14px", color: "#666", marginBottom: "4px" })}>
+            <p
+              className={css({
+                fontSize: "14px",
+                color: "#666",
+                marginBottom: "4px",
+              })}
+            >
               現在のモード
             </p>
             <p className={css({ fontSize: "24px", fontWeight: 700 })}>
@@ -50,7 +62,8 @@ export default function AdminPage() {
           </div>
 
           <p className={css({ fontSize: "12px", color: "#999" })}>
-            モードの切り替えは <code>NEXT_PUBLIC_FESTIVAL_MODE</code> 環境変数で行います。
+            モードの切り替えは <code>NEXT_PUBLIC_FESTIVAL_MODE</code>{" "}
+            環境変数で行います。
           </p>
         </div>
       </div>

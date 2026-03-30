@@ -53,7 +53,7 @@ const getRecentFromAllTanzaku = async (limit: number) => {
   const recentTanzaku = allTanzaku
     .filter(
       (tanzaku) =>
-        tanzaku.logicalDelete !== true && tanzaku.visiblePattern !== false
+        tanzaku.logicalDelete !== true && tanzaku.visiblePattern !== false,
     )
     .sort((a, b) => createdAtToUnix(b.createdAt) - createdAtToUnix(a.createdAt))
     .slice(0, limit);

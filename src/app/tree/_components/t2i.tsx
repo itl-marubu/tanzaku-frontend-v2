@@ -81,10 +81,7 @@ function generateSakuraPositions(count: number): Position[] {
       centerXVw,
       centerYVh,
       allowed:
-        inCanopy &&
-        !inTrunk &&
-        !inTopLeftBlockedCell &&
-        !inTopRightBlockedCell,
+        inCanopy && !inTrunk && !inTopLeftBlockedCell && !inTopRightBlockedCell,
     };
   });
 

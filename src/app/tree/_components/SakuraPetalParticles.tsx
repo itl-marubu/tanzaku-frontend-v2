@@ -19,7 +19,11 @@ type Particle = {
 const PARTICLE_COUNT = 80;
 const MAX_DPR = 2;
 
-function createParticle(width: number, height: number, randomY = true): Particle {
+function createParticle(
+  width: number,
+  height: number,
+  randomY = true,
+): Particle {
   const size = 12 + Math.random() * 26;
   const baseOpacity = 0.1 + Math.random() * 0.3;
 
@@ -45,7 +49,9 @@ export const SakuraPetalParticles: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (reducedMotion) return;
 
     const context = canvas.getContext("2d");
@@ -98,13 +104,7 @@ export const SakuraPetalParticles: React.FC = () => {
         context.globalAlpha = p.opacity;
         context.translate(p.x, p.y);
         context.rotate(p.rotation);
-        context.drawImage(
-          petalImage,
-          -p.size / 2,
-          -p.size / 2,
-          p.size,
-          p.size,
-        );
+        context.drawImage(petalImage, -p.size / 2, -p.size / 2, p.size, p.size);
         context.restore();
       }
     };

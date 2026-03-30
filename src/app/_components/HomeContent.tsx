@@ -1,9 +1,9 @@
 "use client";
 
 import { Footer } from "@/components/Footer";
+import { festivalModeAtom } from "@/lib/festivalModeAtom";
 import { useAtomValue } from "jotai";
 import { css } from "styled-system/css";
-import { festivalModeAtom } from "@/lib/festivalModeAtom";
 import { Form } from "./form";
 
 export const HomeContent: React.FC = () => {
