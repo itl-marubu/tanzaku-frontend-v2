@@ -2,6 +2,15 @@ name: Deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      festival_mode:
+        description: "フェスティバルモード"
+        required: true
+        default: "sakura"
+        type: choice
+        options:
+          - tanabata
+          - sakura
 
 permissions:
   id-token: write
@@ -26,6 +35,8 @@ jobs:
           cache: "pnpm"
       - run: pnpm install
       - run: pnpm run build-opennextjs
+        env:
+          NEXT_PUBLIC_FESTIVAL_MODE: ${{ inputs.festival_mode }}
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

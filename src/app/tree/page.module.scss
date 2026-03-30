@@ -14,11 +14,10 @@
   }
 
   .sasa {
+    position: absolute;
     bottom: 0;
     left: 0;
-    display: absolute;
     width: 110vh;
-    width: fixed;
     height: 100vh;
     transform-origin: 0% 100%;
     animation: yureru 8s infinite alternate;

@@ -69,9 +69,8 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
               ref.current = node;
             }
           }}
-          width={500}
-          height={300}
-          className={styles.sakuraFloat}
+          width={375}
+          height={225}
           {...props}
         />
       );
@@ -123,34 +122,38 @@ function drawSakuraCard(
   textLine2: string | undefined,
   nameLine: string,
 ) {
+  const scale = 0.75;
+  const cardWidth = 500 * scale;
+  const cardHeight = 300 * scale;
+
   // 背景グラデーション
-  const gradient = ctx.createLinearGradient(0, 0, 500, 300);
+  const gradient = ctx.createLinearGradient(0, 0, cardWidth, cardHeight);
   gradient.addColorStop(0, "#fff0f5");
   gradient.addColorStop(1, "#ffd6e7");
   ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 500, 300);
+  ctx.fillRect(0, 0, cardWidth, cardHeight);
 
   // 枠線
   ctx.strokeStyle = "#e8a0b4";
   ctx.lineWidth = 3;
-  ctx.strokeRect(8, 8, 484, 284);
+  ctx.strokeRect(8 * scale, 8 * scale, 484 * scale, 284 * scale);
 
   // 桜の花びら装飾
   const petals = [
-    { x: 30, y: 25, r: 10 },
-    { x: 60, y: 15, r: 7 },
-    { x: 90, y: 30, r: 9 },
-    { x: 15, y: 55, r: 6 },
-    { x: 430, y: 20, r: 9 },
-    { x: 460, y: 35, r: 7 },
-    { x: 485, y: 15, r: 8 },
-    { x: 470, y: 60, r: 6 },
-    { x: 20, y: 260, r: 8 },
-    { x: 50, y: 278, r: 6 },
-    { x: 455, y: 265, r: 9 },
-    { x: 480, y: 280, r: 7 },
-    { x: 250, y: 18, r: 5 },
-    { x: 270, y: 275, r: 5 },
+    { x: 30 * scale, y: 25 * scale, r: 10 * scale },
+    { x: 60 * scale, y: 15 * scale, r: 7 * scale },
+    { x: 90 * scale, y: 30 * scale, r: 9 * scale },
+    { x: 15 * scale, y: 55 * scale, r: 6 * scale },
+    { x: 430 * scale, y: 20 * scale, r: 9 * scale },
+    { x: 460 * scale, y: 35 * scale, r: 7 * scale },
+    { x: 485 * scale, y: 15 * scale, r: 8 * scale },
+    { x: 470 * scale, y: 60 * scale, r: 6 * scale },
+    { x: 20 * scale, y: 260 * scale, r: 8 * scale },
+    { x: 50 * scale, y: 278 * scale, r: 6 * scale },
+    { x: 455 * scale, y: 265 * scale, r: 9 * scale },
+    { x: 480 * scale, y: 280 * scale, r: 7 * scale },
+    { x: 250 * scale, y: 18 * scale, r: 5 * scale },
+    { x: 270 * scale, y: 275 * scale, r: 5 * scale },
   ];
 
   for (const p of petals) {
@@ -170,16 +173,16 @@ function drawSakuraCard(
   ctx.fillStyle = "#3a1a2e";
 
   const hasLine2 = textLine2 && textLine2.length > 0;
-  const line1Y = hasLine2 ? 120 : 145;
+  const line1Y = hasLine2 ? 120 * scale : 145 * scale;
 
   ctx.font = "bold 36px Yuji Syuku, HG正楷書体-PRO, serif";
-  ctx.fillText(textLine1, 250, line1Y);
+  ctx.fillText(textLine1, 250 * scale, line1Y);
 
   if (hasLine2) {
-    ctx.fillText(textLine2, 250, 170);
+    ctx.fillText(textLine2, 250 * scale, 170 * scale);
   }
 
   ctx.font = "22px Yuji Syuku, HG正楷書体-PRO, serif";
   ctx.fillStyle = "#6b3a5a";
-  ctx.fillText(nameLine, 250, 240);
+  ctx.fillText(nameLine, 250 * scale, 240 * scale);
 }

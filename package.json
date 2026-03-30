@@ -16,7 +16,9 @@
     "gen:cf-type": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "gen:panda": "panda codegen",
     "gen": "run-p gen:*",
-    "prepare": "pnpm gen"
+    "prepare": "pnpm gen",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@next/third-parties": "^15.3.2",
@@ -37,6 +39,7 @@
     "@biomejs/biome": "^1.9.4",
     "@cloudflare/workers-types": "^4.20250525.0",
     "@pandacss/dev": "^0.53.7",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^20.17.50",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",

@@ -141,3 +141,104 @@ npx wrangler kv namespace create "APP_CONFIG" --preview
 - `getCloudflareContext({ async: true })` — OpenNext v1 beta では `async: true` オプションが必要
 - SCSS `.d.ts` は自動生成だが今回は手動で追記（ジェネレーター未設定）
 - `request.json()` は TypeScript strict mode で `unknown` 返却 → `as { mode: unknown }` でキャスト
+
+---
+
+## アーキテクチャ変更 (2026-03-30 / PR #6 レビュー対応)
+
+PR #6 の mizphses コメントを受け、KV ベースの実装を環境変数ベースに変更。
+
+### 変更理由
+
+- モードの切り替え頻度は年数回程度であり、KV + ポーリングは過剰
+- `/api/mode` Route Handler は openapi-fetch による型管理の方針と合わない
+- 環境変数で十分シンプルかつ安全（認証問題も解消）
+
+### 変更内容
+
+| ファイル | 変更 |
+|---|---|
+| `src/lib/festivalMode.ts` | `FESTIVAL_MODE_KEY` 定数を削除 |
+| `src/lib/festivalModeAtom.ts` | `NEXT_PUBLIC_FESTIVAL_MODE` 環境変数から初期値を取得するよう変更 |
+| `src/app/_components/Providers.tsx` | `FestivalModeProvider` の参照を削除 |
+| `src/app/_components/FestivalModeProvider.tsx` | **削除** |
+| `src/app/api/mode/route.ts` | **削除**（`/api/mode` ディレクトリごと） |
+| `src/api/client.ts` | `getFestivalMode` / `setFestivalMode` を削除 |
+| `src/app/admin/page.tsx` | トグル UI を削除し、env var ベースの現在モード表示のみに変更 |
+| `wrangler.jsonc` | `kv_namespaces` ブロックを削除 |
+| `cloudflare-env.d.ts` | `APP_CONFIG: KVNamespace` を削除 |
+| `.env.development` | `NEXT_PUBLIC_FESTIVAL_MODE=tanabata` を追加 |
+| `.env.production` | `NEXT_PUBLIC_FESTIVAL_MODE=sakura` を追加（fallback 値） |
+| `.github/workflows/deploy.yaml` | `workflow_dispatch` にモード選択入力を追加、ビルド時に env として渡す |
+
+### モード切替の操作手順（本番）
+
+`NEXT_PUBLIC_*` 変数は**ビルド時に焼き込まれる**ため、Cloudflare の runtime 環境変数では制御できない。
+デプロイワークフローに `workflow_dispatch` 入力を追加し、GitHub Actions UI から選択できるようにした。
+
+**手順:**
+1. GitHub リポジトリ → Actions → **Deploy** ワークフローを開く
+2. "Run workflow" ボタンをクリック
+3. `フェスティバルモード` のドロップダウンで `tanabata` または `sakura` を選択
+4. "Run workflow" を実行 → ビルド＆デプロイが走り、選択したモードで本番が更新される
+
+**仕組み:**
+```
+GitHub Actions UI (入力: festival_mode)
+        ↓
+pnpm run build-opennextjs  ← NEXT_PUBLIC_FESTIVAL_MODE=${{ inputs.festival_mode }}
+        ↓ ビルド時に変数が焼き込まれる
+Cloudflare Workers にデプロイ
+```
+
+`.env.production` の値（`sakura`）は入力が省略された場合の fallback としてのみ機能する。
+
+---
+
+## 追加実装・調査ログ (2026-03-31)
+
+### 運用・設定の更新
+
+- `sakura` 開発を前提に、`.env.development` を `NEXT_PUBLIC_FESTIVAL_MODE=sakura` に変更。
+- GitHub Actions の Deploy ワークフローで `festival_mode` のデフォルト値を `sakura` に変更。
+- `sakura-mode-plan.md` の環境変数表記を実態に合わせて更新。
+- `.serena/memories/project_overview.md` を最新アーキテクチャ（`/api/mode` 廃止、env 切替）に合わせて更新。
+
+### コード健全化（現状把握で見つかった問題の修正）
+
+- `src/app/tree/page.tsx` の `styles.static` 参照を廃止し、桜モード時の揺れ停止をインライン style で適用。
+- `src/app/tree/page.module.scss` の不正値（`display: absolute`, `width: fixed`）を修正。
+- `src/components/createTanzaku/index.tsx` の lint 指摘（単一宣言）を修正。
+- 上記修正後、`pnpm -s typecheck` / `pnpm -s lint` が通過することを確認。
+
+### 桜カードの見た目変更（tree）
+
+- ユーザー要望により、桜カードを「花弁型」から「四角 + グラデーション（PR #6 の 524b5d3 相当）」へ戻した。
+- これに合わせて `CreateTanzaku` の桜キャンバスを `500x300` に戻し、描画処理を旧実装系に復元。
+- `src/app/tree/_components/t2i.tsx` の配置計算比率を `500:300` 前提に補正。
+- 後続要望により、桜カードの `sakuraFloat` アニメーションは停止（クラス適用を外す）。
+
+### 花びらパーティクル追加
+
+- `src/app/tree/_components/SakuraPetalParticles.tsx` を新規作成。
+- `public/hanabira.svg` を使った全画面 Canvas パーティクルを実装し、`mode === "sakura"` のときのみ表示。
+- 粒子数、ランダムサイズ・回転・透明度、右下方向への落下を実装。
+- `pointer-events: none` で既存 UI 操作を阻害しないように調整。
+- `prefers-reduced-motion: reduce` 時はアニメーションを抑止。
+
+### 背景描画の不具合調査（Playwright）
+
+- ユーザー報告「投稿はあるのに桜背景が描画されない」を Playwright で再現・調査。
+- 調査で確認した事象:
+  - `/sakura-tree.webp` は `200` で取得される。
+  - 背景 canvas のピクセル値が透明（`[0,0,0,0]`）になるケースがある。
+  - `public/sakura-tree.webp` と `public/sasa.webp` は同一ハッシュ（同じ画像データ）。
+- 対応:
+  - `Image` の `onload/onerror` を `src` 設定前に登録し、`complete` チェックでイベント取りこぼしを吸収。
+  - `sakura` 時の `return null` を廃止し、背景 canvas は常に描画してカード配置だけ条件分岐。
+  - 背景 canvas を左下固定（`left: 0; bottom: 0; display: block;`）にして下端の空白を抑制。
+
+### 既知事項（現時点）
+
+- `song-sakura.webm` は未配置のため、`/tree` で 404 ログが出る（他機能には大きな影響なし）。
+- `sakura-tree.webp` が `sasa.webp` と同一のため、桜専用背景を期待する場合は画像差し替えが必要。

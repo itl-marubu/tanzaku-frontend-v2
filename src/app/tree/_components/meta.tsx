@@ -1,4 +1,5 @@
 "use client";
+import { MODE_CONFIG } from "@/lib/festivalMode";
 import { festivalModeAtom } from "@/lib/festivalModeAtom";
 import { useAtomValue } from "jotai";
 import { useEffect, useRef, useState } from "react";
@@ -15,6 +16,7 @@ type projectData = {
 
 export const MetaInfo: React.FC = () => {
   const mode = useAtomValue(festivalModeAtom);
+  const config = MODE_CONFIG[mode];
   const songUrl = mode === "sakura" ? "/song-sakura.webm" : "/song.webm";
 
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -73,9 +75,17 @@ export const MetaInfo: React.FC = () => {
           right: "10px",
         }}
       >
-        <Logo logoColor="#fff" style={{ marginTop: "100px" }} />
+        {mode === "sakura" ? (
+          <img
+            src="/sakura-rogo.svg"
+            alt="短冊の会　ロゴ"
+            style={{ width: 750, height: 300, marginTop: "100px", objectFit: "contain" }}
+          />
+        ) : (
+          <Logo logoColor="#fff" width={750} height={300} style={{ marginTop: "100px" }} />
+        )}
         <p style={{ fontSize: "2rem", fontWeight: 700, marginTop: "80px" }}>
-          時間経過で短冊が切り替わります。
+          時間経過で{config.itemName}が切り替わります。
           <br />
           どなたでもご参加ください！
         </p>
@@ -85,7 +95,7 @@ export const MetaInfo: React.FC = () => {
               marginBottom: "10px",
             })}
           >
-            短冊の投稿はこちらから↓
+            {config.itemName}の投稿はこちらから↓
           </h2>
           <div style={{ marginBottom: "80px" }}>
             <QrCode url={`${currentDomain}`} />

@@ -3,6 +3,7 @@ import { festivalModeAtom } from "@/lib/festivalModeAtom";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import dynamic from "next/dynamic";
+import { SakuraPetalParticles } from "./_components/SakuraPetalParticles";
 import { TanzakuToImage } from "./_components/t2i";
 import styles from "./page.module.scss";
 
@@ -16,7 +17,11 @@ export default function TanzakuShow() {
   );
   return (
     <main className={clsx(styles.main, mode === "sakura" && styles.sakura)}>
-      <div className={styles.sasa}>
+      {mode === "sakura" && <SakuraPetalParticles />}
+      <div
+        className={styles.sasa}
+        style={mode === "sakura" ? { animation: "none" } : undefined}
+      >
         <TanzakuToImage />
       </div>
       <MetaInfo />

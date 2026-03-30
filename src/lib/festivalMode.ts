@@ -1,6 +1,5 @@
 export type FestivalMode = "tanabata" | "sakura";
 
-export const FESTIVAL_MODE_KEY = "festivalMode";
 export const DEFAULT_MODE: FestivalMode = "tanabata";
 
 export const MODE_CONFIG = {

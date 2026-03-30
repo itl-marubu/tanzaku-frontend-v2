@@ -12,13 +12,5 @@
       "pattern": "tanzaku.mizphses.com",
       "custom_domain": true
     }
-  ],
-  "kv_namespaces": [
-    {
-      // npx wrangler kv namespace create "APP_CONFIG" で取得したIDを設定してください
-      "binding": "APP_CONFIG",
-      "id": "YOUR_KV_ID_HERE",
-      "preview_id": "YOUR_PREVIEW_KV_ID_HERE"
-    }
   ]
 }
