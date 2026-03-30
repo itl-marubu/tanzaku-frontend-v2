@@ -2,6 +2,10 @@
   animation: yureru 7s infinite;
 }
 
+.sakuraFloat {
+  animation: sakuraFloat 6s ease-in-out infinite;
+}
+
 @keyframes yureru {
   0% {
     transform: rotate(0deg);
@@ -17,5 +21,23 @@
 
   100% {
     transform: rotate(0.3deg);
+  }
+}
+
+@keyframes sakuraFloat {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  25% {
+    transform: translateY(-6px) rotate(0.5deg);
+  }
+
+  75% {
+    transform: translateY(4px) rotate(-0.5deg);
+  }
+
+  100% {
+    transform: translateY(0px) rotate(0deg);
   }
 }

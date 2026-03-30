@@ -1,14 +1,7 @@
 import { CreateTanzaku } from "@/components/createTanzaku";
-import { useEffect, useRef } from "react";
+import type { FestivalMode } from "@/lib/festivalMode";
+import { useRef } from "react";
 import { css } from "styled-system/css";
-
-const spinAnimation = {
-  animation: "spin 1s linear infinite",
-  "@keyframes spin": {
-    from: { transform: "rotate(0deg)" },
-    to: { transform: "rotate(360deg)" },
-  },
-} as const;
 
 type PreviewModalProps = {
   isOpen: boolean;
@@ -17,6 +10,7 @@ type PreviewModalProps = {
   name: string;
   message: string;
   isSubmitting: boolean;
+  mode: FestivalMode;
 };
 
 export const PreviewModal: React.FC<PreviewModalProps> = ({
@@ -26,20 +20,17 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
   name,
   message,
   isSubmitting,
+  mode,
 }) => {
   if (!isOpen) return null;
 
-  // メッセージを2行に分割
   const [textLine1, textLine2] =
     message.length > 7
       ? [message.slice(0, 7), message.slice(7)]
       : [message, ""];
 
-  // CreateTanzaku用のrefを用意
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
-
-  // モーダルが開くたびにCanvasをリセット（keyで強制再生成）
-  const tanzakuKey = name + textLine1 + textLine2 + isOpen;
+  const tanzakuKey = name + textLine1 + textLine2 + isOpen + mode;
 
   return (
     <div
@@ -94,6 +85,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
             <CreateTanzaku
               key={tanzakuKey}
               ref={previewCanvasRef}
+              mode={mode}
               textLine1={textLine1}
               textLine2={textLine2}
               nameLine={name}

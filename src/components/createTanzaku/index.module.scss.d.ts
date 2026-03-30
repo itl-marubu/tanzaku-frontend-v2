@@ -2,6 +2,7 @@
 // This file is generated automatically by the typed-scss-modules library
 export type Styles = {
   animated: string;
+  sakuraFloat: string;
   yureru: string;
 };
 

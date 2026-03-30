@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Lexend, Noto_Sans_JP, Yuji_Syuku } from "next/font/google";
+import { Lexend, Noto_Sans_JP, Yuji_Syuku } from "next/font/google";
 import "./globals.css";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import clsx from "clsx";
-import localFont from "next/font/local";
 import { css } from "../../styled-system/css";
+import { Providers } from "./_components/Providers";
 
 const nsJp = Noto_Sans_JP({
   subsets: ["latin"],
@@ -57,15 +57,17 @@ export default function RootLayout({
           }),
         )}
       >
-        <div
-          className={css({
-            fontFamily:
-              "var(--font-lexend), var(--font-noto-sans-jp), sans-serif",
-            fontWeight: 500,
-          })}
-        >
-          {children}
-        </div>
+        <Providers>
+          <div
+            className={css({
+              fontFamily:
+                "var(--font-lexend), var(--font-noto-sans-jp), sans-serif",
+              fontWeight: 500,
+            })}
+          >
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );

@@ -1,5 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { festivalModeAtom } from "@/lib/festivalModeAtom";
+import { useAtomValue } from "jotai";
+import { useEffect, useRef, useState } from "react";
 import { css } from "styled-system/css";
 import { Logo } from "./Logo";
 import { QrCode } from "./qrcode";
@@ -12,32 +14,53 @@ type projectData = {
 };
 
 export const MetaInfo: React.FC = () => {
-  const songUrl = "/song.webm";
+  const mode = useAtomValue(festivalModeAtom);
+  const songUrl = mode === "sakura" ? "/song-sakura.webm" : "/song.webm";
+
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [projectData, setProjectData] = useState({} as projectData);
 
+  // 初回ユーザーインタラクション待機
   useEffect(() => {
-    const audio = new Audio(songUrl);
-    audio.loop = true;
+    if (hasInteracted) return;
 
-    const handleUserInteraction = () => {
-      audio.play().catch((error) => {
-        console.error("error", error);
-      });
-      // イベントリスナーを一度だけ実行するために削除
-      document.removeEventListener("click", handleUserInteraction);
-      document.removeEventListener("touchstart", handleUserInteraction);
+    const handleInteraction = () => {
+      setHasInteracted(true);
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("touchstart", handleInteraction);
     };
 
-    // ユーザーインタラクションを待機
-    document.addEventListener("click", handleUserInteraction);
-    document.addEventListener("touchstart", handleUserInteraction);
+    document.addEventListener("click", handleInteraction);
+    document.addEventListener("touchstart", handleInteraction);
+
+    return () => {
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("touchstart", handleInteraction);
+    };
+  }, [hasInteracted]);
+
+  // モードが変わったら音楽を切り替え
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    const audio = new Audio(songUrl);
+    audio.loop = true;
+    audioRef.current = audio;
+
+    if (hasInteracted) {
+      audio.play().catch((error) => {
+        console.error("audio play error:", error);
+      });
+    }
 
     return () => {
       audio.pause();
-      document.removeEventListener("click", handleUserInteraction);
-      document.removeEventListener("touchstart", handleUserInteraction);
     };
-  }, []);
+  }, [songUrl, hasInteracted]);
 
   const currentDomain = location.hostname;
   return (

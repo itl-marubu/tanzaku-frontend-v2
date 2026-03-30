@@ -2,6 +2,7 @@
 // This file is generated automatically by the typed-scss-modules library
 export type Styles = {
   main: string;
+  sakura: string;
   sasa: string;
   tanzakuIntro: string;
   yureru: string;
