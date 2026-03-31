@@ -30,6 +30,8 @@ const FETCH_INTERVAL_MS = 60_000;
 const SAKURA_FALLBACK_BG_WIDTH = 1200;
 const SAKURA_FALLBACK_BG_HEIGHT = 1000;
 const SAKURA_POSITION_JITTER_RATIO = 0.7;
+const SAKURA_MARGIN_TOP_VH = 5;
+const SAKURA_MARGIN_LEFT_VH = 5;
 
 const squaredDistance = (a: SakuraCell, b: SakuraCell) => {
   const dx = a.centerXVw - b.centerXVw;
@@ -44,6 +46,10 @@ function generateSakuraPositions(count: number): Position[] {
   const cardWpx = (window.innerWidth * cardWvw) / 100;
   const cardHpx = cardWpx * SAKURA_CARD_ASPECT_RATIO;
   const cardHvh = (cardHpx / window.innerHeight) * 100;
+  const leftMarginVw =
+    ((window.innerHeight * SAKURA_MARGIN_LEFT_VH) / 100 / window.innerWidth) *
+    100;
+  const topMarginVh = SAKURA_MARGIN_TOP_VH;
 
   const marginVw = 2;
   const marginVh = 2;
@@ -51,7 +57,7 @@ function generateSakuraPositions(count: number): Position[] {
   const cellH = cardHvh + marginVh; // 実測カード高さ + マージン
 
   // 右パネル(ロゴ・QRコード)が width:35% で固定されているため左 60vw 以内に収める
-  const maxWidthVw = 60;
+  const maxWidthVw = 60 - leftMarginVw;
   // 枝葉が多い上側に寄せ、太い幹・下側の余白には置かない
   const canopyMaxYVh = 66;
   const trunkMinXVw = 24;
@@ -64,8 +70,8 @@ function generateSakuraPositions(count: number): Position[] {
   const cells: SakuraCell[] = Array.from({ length: cols * rows }, (_, i) => {
     const col = i % cols;
     const row = Math.floor(i / cols);
-    const centerXVw = col * cellW + cardWvw / 2;
-    const centerYVh = row * cellH + cardHvh / 2;
+    const centerXVw = leftMarginVw + col * cellW + cardWvw / 2;
+    const centerYVh = topMarginVh + row * cellH + cardHvh / 2;
 
     const inCanopy = centerYVh <= canopyMaxYVh;
     const inTrunk =
@@ -128,8 +134,8 @@ function generateSakuraPositions(count: number): Position[] {
 
   // ジッターは margin の範囲内に収めるので重なりは発生しない
   return selected.map(({ col, row }) => ({
-    x: `${col * cellW + Math.random() * (marginVw * SAKURA_POSITION_JITTER_RATIO)}vw`,
-    y: `${row * cellH + Math.random() * (marginVh * SAKURA_POSITION_JITTER_RATIO)}vh`,
+    x: `${leftMarginVw + col * cellW + Math.random() * (marginVw * SAKURA_POSITION_JITTER_RATIO)}vw`,
+    y: `${topMarginVh + row * cellH + Math.random() * (marginVh * SAKURA_POSITION_JITTER_RATIO)}vh`,
   }));
 }
 
