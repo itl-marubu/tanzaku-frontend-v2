@@ -70,9 +70,17 @@ export const MetaInfo: React.FC = () => {
       <div
         style={{
           position: "fixed",
-          width: "35%",
-          top: "10vh",
-          right: "10px",
+          top: 0,
+          right: 0,
+          width: "30vw",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: "4vh 1.2vw",
+          boxSizing: "border-box",
         }}
       >
         {mode === "sakura" ? (
@@ -80,9 +88,9 @@ export const MetaInfo: React.FC = () => {
             src="/sakura-rogo.svg"
             alt="短冊の会　ロゴ"
             style={{
-              width: 750,
-              height: 300,
-              marginTop: "100px",
+              width: "min(28vw, 560px)",
+              maxWidth: "100%",
+              height: "auto",
               objectFit: "contain",
             }}
           />
@@ -91,15 +99,26 @@ export const MetaInfo: React.FC = () => {
             logoColor="#fff"
             width={750}
             height={300}
-            style={{ marginTop: "100px" }}
+            style={{
+              width: "min(28vw, 560px)",
+              maxWidth: "100%",
+              height: "auto",
+            }}
           />
         )}
-        <p style={{ fontSize: "2rem", fontWeight: 700, marginTop: "80px" }}>
+        <p style={{ fontSize: "2rem", fontWeight: 700, marginTop: "6vh" }}>
           時間経過で{config.itemName}が切り替わります。
           <br />
           どなたでもご参加ください！
         </p>
-        <div style={{ position: "fixed", bottom: "20px", right: "390px" }}>
+        <div
+          style={{
+            marginTop: "6vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <h2
             className={css({
               marginBottom: "10px",
@@ -107,9 +126,7 @@ export const MetaInfo: React.FC = () => {
           >
             {config.itemName}の投稿はこちらから↓
           </h2>
-          <div style={{ marginBottom: "80px" }}>
-            <QrCode url={`${currentDomain}`} />
-          </div>
+          <QrCode url={`${currentDomain}`} />
         </div>
       </div>
     </>
