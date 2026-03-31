@@ -30,7 +30,7 @@ export const Navbar: React.FC = () => {
             }),
           )}
         >
-          {mode === "sakura" ? "抱負" : "短冊"}
+          {mode === "sakura" ? "iTL桜まつり" : "短冊"}
         </h1>
       </Link>
       <div

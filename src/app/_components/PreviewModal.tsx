@@ -80,6 +80,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
           <div
             className={css({
               transformOrigin: "top center",
+              scale: "0.8",
             })}
           >
             <CreateTanzaku
@@ -96,9 +97,11 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
               width: "100%",
             })}
           >
-            <p className={css({ fontSize: "12px", color: "#666" })}>
-              ※色は掲示時にランダムに決まります。
-            </p>
+            {mode !== "sakura" && (
+              <p className={css({ fontSize: "12px", color: "#666" })}>
+                ※色は掲示時にランダムに決まります。
+              </p>
+            )}
             <p
               className={css({
                 fontSize: "16px",

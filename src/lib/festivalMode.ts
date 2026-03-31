@@ -2,10 +2,17 @@ export type FestivalMode = "tanabata" | "sakura";
 
 export const DEFAULT_MODE: FestivalMode = "tanabata";
 
+const envMode = process.env.NEXT_PUBLIC_FESTIVAL_MODE as
+  | FestivalMode
+  | undefined;
+export const ACTIVE_MODE: FestivalMode =
+  envMode === "tanabata" || envMode === "sakura" ? envMode : DEFAULT_MODE;
+
 export const MODE_CONFIG = {
   tanabata: {
     eventName: "iTL七夕祭",
     itemName: "短冊",
+    heading: "iTL七夕祭に、あなたの短冊を飾りましょう。",
     formLabel: "短冊にかけるメッセージを教えてください。",
     submitButton: "短冊をかける",
     toastMessage: "短冊が投稿されました！",
@@ -17,6 +24,7 @@ export const MODE_CONFIG = {
   sakura: {
     eventName: "iTL桜まつり",
     itemName: "抱負",
+    heading: "iTL桜まつりに、あなたの抱負を掲げましょう。",
     formLabel: "新年度の抱負を教えてください。",
     submitButton: "抱負を掲げる",
     toastMessage: "抱負が投稿されました！",

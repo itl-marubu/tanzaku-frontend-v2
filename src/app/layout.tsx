@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lexend, Noto_Sans_JP, Yuji_Syuku } from "next/font/google";
 import "./globals.css";
+import { ACTIVE_MODE, MODE_CONFIG } from "@/lib/festivalMode";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import clsx from "clsx";
 import { css } from "../../styled-system/css";
@@ -22,9 +23,11 @@ const yujiShuku = Yuji_Syuku({
   variable: "--font-yuji",
 });
 
+const { eventName, itemName } = MODE_CONFIG[ACTIVE_MODE];
+
 export const metadata: Metadata = {
-  title: "iTL七夕祭",
-  description: "iTLに短冊を飾りましょう!",
+  title: eventName,
+  description: `iTLに${itemName}を飾りましょう!`,
 };
 
 export default function RootLayout({

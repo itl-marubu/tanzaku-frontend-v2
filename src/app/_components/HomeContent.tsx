@@ -1,6 +1,7 @@
 "use client";
 
 import { Footer } from "@/components/Footer";
+import { MODE_CONFIG } from "@/lib/festivalMode";
 import { festivalModeAtom } from "@/lib/festivalModeAtom";
 import { useAtomValue } from "jotai";
 import { css } from "styled-system/css";
@@ -41,9 +42,7 @@ export const HomeContent: React.FC = () => {
           })}
         >
           <h1 className={css({ fontSize: "24px", fontWeight: 700 })}>
-            {isSakura
-              ? "iTL桜まつりに、あなたの抱負を掲げましょう。"
-              : "iTL七夕祭に、あなたの短冊を飾りましょう。"}
+            {MODE_CONFIG[mode].heading}
           </h1>
           <div>
             <Form />
