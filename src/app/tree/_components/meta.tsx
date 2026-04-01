@@ -72,7 +72,7 @@ export const MetaInfo: React.FC = () => {
           position: "fixed",
           top: 0,
           right: 0,
-          width: "30vw",
+          width: "40vw",
           height: "100vh",
           display: "flex",
           flexDirection: "column",
@@ -88,7 +88,7 @@ export const MetaInfo: React.FC = () => {
             src="/sakura-rogo.svg"
             alt="短冊の会　ロゴ"
             style={{
-              width: "min(28vw, 560px)",
+              width: "min(33vw, 700px)",
               maxWidth: "100%",
               height: "auto",
               objectFit: "contain",
