@@ -199,7 +199,7 @@ pnpm preview
 
 - `getTanzakuList()`: 短冊一覧を取得
 - `createTanzaku(data)`: 短冊を作成
-- `getRecentTanzaku()`: 最近の短冊を取得（クライアント表示用）
+- `getClientTanzaku(limit?)`: クライアント表示用の短冊を取得（`limit` 未指定時は10件、最大30件）
 
 APIの型定義は`scripts/bin/openapi.yml`から自動生成されます。
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { getRecentTanzaku } from "@/api/client";
+import { getClientTanzaku } from "@/api/client";
 import { CreateTanzaku } from "@/components/createTanzaku";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,7 +11,20 @@ type tanzakuType = {
   userName: string;
 };
 
-export const TanzakuToImage: React.FC = () => {
+type DisplayMode = "tanabata" | "sakura";
+
+type TanzakuToImageProps = {
+  mode?: DisplayMode;
+};
+
+const TANZAKU_LIMIT_BY_MODE: Record<DisplayMode, number> = {
+  tanabata: 10,
+  sakura: 14,
+};
+
+export const TanzakuToImage: React.FC<TanzakuToImageProps> = ({
+  mode = "tanabata",
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -20,7 +33,7 @@ export const TanzakuToImage: React.FC = () => {
   useEffect(() => {
     const fetchTanzaku = async () => {
       try {
-        const tanzakuData = await getRecentTanzaku();
+        const tanzakuData = await getClientTanzaku(TANZAKU_LIMIT_BY_MODE[mode]);
         if (!tanzakuData) {
           throw new Error("データの取得に失敗しました");
         }
@@ -38,7 +51,7 @@ export const TanzakuToImage: React.FC = () => {
     const interval = setInterval(fetchTanzaku, 60000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [mode]);
 
   useEffect(() => {
     const image = new Image();

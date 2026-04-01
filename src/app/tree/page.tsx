@@ -13,7 +13,7 @@ export default function TanzakuShow() {
   return (
     <main className={styles.main}>
       <div className={styles.sasa}>
-        <TanzakuToImage />
+        <TanzakuToImage mode="tanabata" />
       </div>
       <MetaInfo />
     </main>

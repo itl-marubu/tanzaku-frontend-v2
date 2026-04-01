@@ -171,13 +171,13 @@ graph TB
         
         subgraph "ルーティング"
             R1["/tanzaku<br/>GET: 一覧取得<br/>POST: 作成"]
-            R2["/tanzaku/{id}<br/>GET: 詳細取得"]
-            R3["/tanzaku/client<br/>GET: 最新20件"]
+            R2["/tanzaku/check/{id}<br/>GET: 詳細取得"]
+            R3["/tanzaku/client<br/>GET: クライアント表示用（limit指定可）"]
             R4["/auth/signup<br/>POST: 新規登録"]
             R5["/auth/login<br/>POST: ログイン"]
             R6["/auth/refresh<br/>POST: トークン更新"]
             R7["/auth/google<br/>GET: Google OAuth"]
-            R8["/admin/tanzakus<br/>GET: 全件取得<br/>POST: 編集/削除"]
+            R8["/manage/tanzakus<br/>GET: 全件取得<br/>POST: 編集/削除"]
         end
         
         subgraph "ミドルウェア"
@@ -288,8 +288,8 @@ sequenceDiagram
     U->>F: /tree ページアクセス
     F->>API: GET /tanzaku/client
     API->>B: HTTP Request
-    B->>P: getRecentTanzaku()
-    P->>D: SELECT * FROM tanzaku LIMIT 20
+    B->>P: getClientTanzaku(limit)
+    P->>D: SELECT * FROM tanzaku LIMIT limit (default: 10, max: 30)
     D-->>P: データ配列
     P-->>B: Tanzaku[]
     B-->>API: JSON Response
