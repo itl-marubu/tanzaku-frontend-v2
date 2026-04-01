@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
         },
       })}
     >
-      <p>©2025 iTL Marubu</p>
+      <p>©2026 iTL Marubu</p>
       <span
         className={css({
           display: "flex",

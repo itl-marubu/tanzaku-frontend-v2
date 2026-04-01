@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Lexend, Noto_Sans_JP, Yuji_Syuku } from "next/font/google";
+import { Lexend, Noto_Sans_JP, Yuji_Syuku } from "next/font/google";
 import "./globals.css";
+import { ACTIVE_MODE, MODE_CONFIG } from "@/lib/festivalMode";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import clsx from "clsx";
-import localFont from "next/font/local";
 import { css } from "../../styled-system/css";
+import { Providers } from "./_components/Providers";
 
 const nsJp = Noto_Sans_JP({
   subsets: ["latin"],
@@ -22,9 +23,11 @@ const yujiShuku = Yuji_Syuku({
   variable: "--font-yuji",
 });
 
+const { eventName, itemName } = MODE_CONFIG[ACTIVE_MODE];
+
 export const metadata: Metadata = {
-  title: "iTL七夕祭",
-  description: "iTLに短冊を飾りましょう!",
+  title: eventName,
+  description: `iTLに${itemName}を飾りましょう!`,
 };
 
 export default function RootLayout({
@@ -57,15 +60,17 @@ export default function RootLayout({
           }),
         )}
       >
-        <div
-          className={css({
-            fontFamily:
-              "var(--font-lexend), var(--font-noto-sans-jp), sans-serif",
-            fontWeight: 500,
-          })}
-        >
-          {children}
-        </div>
+        <Providers>
+          <div
+            className={css({
+              fontFamily:
+                "var(--font-lexend), var(--font-noto-sans-jp), sans-serif",
+              fontWeight: 500,
+            })}
+          >
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );

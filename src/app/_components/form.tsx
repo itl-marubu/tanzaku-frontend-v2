@@ -1,7 +1,10 @@
 "use client";
 import { createTanzaku } from "@/api/client";
 import { CreateTanzaku } from "@/components/createTanzaku";
+import { MODE_CONFIG } from "@/lib/festivalMode";
+import { festivalModeAtom } from "@/lib/festivalModeAtom";
 import { sendGAEvent } from "@next/third-parties/google";
+import { useAtomValue } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { css } from "styled-system/css";
@@ -9,20 +12,16 @@ import { PreviewModal } from "./PreviewModal";
 import { Toast } from "./Toast";
 import { TwitterDialog } from "./TwitterDialog";
 
-const spin = {
-  animation: "spin 1s linear infinite",
-  "@keyframes spin": {
-    "0%": { transform: "rotate(0deg)" },
-    "100%": { transform: "rotate(360deg)" },
-  },
-};
-
 type FormData = {
   name: string;
   message: string;
 };
 
 export const Form: React.FC = () => {
+  const mode = useAtomValue(festivalModeAtom);
+  const config = MODE_CONFIG[mode];
+  const isSakura = mode === "sakura";
+
   const { register, handleSubmit, reset, watch } = useForm<FormData>();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState<FormData | null>(null);
@@ -53,7 +52,7 @@ export const Form: React.FC = () => {
 
       if (!res?.id) {
         console.error("Failed to create tanzaku:", res);
-        setError("短冊の送信に失敗しました。もう一度お試しください。");
+        setError(config.errorMessage);
         setIsPreviewOpen(false);
         sendGAEvent("event", "failed", {
           event_category: "result",
@@ -82,7 +81,7 @@ export const Form: React.FC = () => {
       setShowTwitterDialog(true);
     } catch (error) {
       console.error(error);
-      setError("短冊の送信に失敗しました。もう一度お試しください。");
+      setError(config.errorMessage);
       setIsPreviewOpen(false);
     } finally {
       setIsSubmitting(false);
@@ -145,7 +144,7 @@ export const Form: React.FC = () => {
             htmlFor="message"
             className={css({ fontSize: "16px", fontWeight: "bold" })}
           >
-            短冊にかけるメッセージを教えてください。
+            {config.formLabel}
           </label>
           <div
             className={css({
@@ -212,21 +211,21 @@ export const Form: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
+          style={{
+            background: isSakura ? "#ffb7c5" : "#fff",
+            color: isSakura ? "#3a1a2e" : "#000",
+            borderColor: isSakura ? "#ffb7c5" : "#000",
+          }}
           className={css({
-            background: "#fff",
-            color: "#000",
             padding: "8px 16px",
             borderRadius: "4px",
             cursor: isSubmitting ? "not-allowed" : "pointer",
             opacity: isSubmitting ? 0.7 : 1,
-            border: "1px solid #000",
-            _hover: {
-              background: isSubmitting ? "#fff" : "#f0f0f0",
-            },
+            border: "1px solid",
             marginTop: "10px",
           })}
         >
-          短冊をかける
+          {config.submitButton}
         </button>
       </form>
       {previewData && (
@@ -237,10 +236,11 @@ export const Form: React.FC = () => {
           name={previewData.name}
           message={previewData.message}
           isSubmitting={isSubmitting}
+          mode={mode}
         />
       )}
       <Toast
-        message="短冊が投稿されました！"
+        message={config.toastMessage}
         isVisible={showToast}
         onClose={() => setShowToast(false)}
       />
@@ -256,6 +256,7 @@ export const Form: React.FC = () => {
       >
         <CreateTanzaku
           ref={tanzakuCanvasRef}
+          mode={mode}
           textLine1={twitterDialogData?.message?.slice(0, 7) || ""}
           textLine2={twitterDialogData?.message?.slice(7) || ""}
           nameLine={twitterDialogData?.name || ""}
@@ -268,6 +269,7 @@ export const Form: React.FC = () => {
           name={twitterDialogData.name}
           message={twitterDialogData.message}
           imageUrl={twitterImageUrl || undefined}
+          mode={mode}
         />
       )}
     </>

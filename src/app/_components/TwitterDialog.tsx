@@ -1,3 +1,5 @@
+import { MODE_CONFIG } from "@/lib/festivalMode";
+import type { FestivalMode } from "@/lib/festivalMode";
 import type React from "react";
 import { css } from "styled-system/css";
 
@@ -7,6 +9,7 @@ type TwitterDialogProps = {
   name: string;
   message: string;
   imageUrl?: string;
+  mode: FestivalMode;
 };
 
 export const TwitterDialog: React.FC<TwitterDialogProps> = ({
@@ -15,28 +18,30 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({
   name,
   message,
   imageUrl,
+  mode,
 }) => {
   if (!isOpen) return null;
 
-  // テンプレート文
-  const tweetText = `#iTL七夕祭2025 に短冊を投稿しました！\nキャンパスロビーでご覧ください！\n@itl_marubu #iTL七夕祭\n\n「${message}」\n\nお名前：${name}`;
+  const config = MODE_CONFIG[mode];
+  const isSakura = mode === "sakura";
+
+  const tweetText = config.shareText(message, name);
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
-  // Web Share APIを使用して共有
   const handleWebShare = async () => {
     if (navigator.share) {
       try {
         const shareData: ShareData = {
-          title: "iTL七夕祭2025 短冊投稿",
+          title: config.shareTitle,
           text: tweetText,
         };
 
-        // 画像がある場合はファイルとして追加
         if (imageUrl) {
           try {
             const response = await fetch(imageUrl);
             const blob = await response.blob();
-            const file = new File([blob], "tanzaku.png", { type: "image/png" });
+            const fileName = isSakura ? "kokorozashi.png" : "tanzaku.png";
+            const file = new File([blob], fileName, { type: "image/png" });
             shareData.files = [file];
           } catch (error) {
             console.error("画像の取得に失敗しました:", error);
@@ -48,10 +53,14 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({
         console.error("共有に失敗しました:", error);
       }
     } else {
-      // Web Share APIがサポートされていない場合のフォールバック
       alert("お使いのブラウザでは共有機能がサポートされていません。");
     }
   };
+
+  // 桜モードは横型 (500×300)、七夕は縦型 (300×500) → ダイアログ内表示サイズ
+  const imgStyle = isSakura
+    ? { width: 250, height: 150 }
+    : { width: 180, height: 300 };
 
   return (
     <div
@@ -105,16 +114,13 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({
           >
             <img
               src={imageUrl}
-              alt="短冊画像"
-              style={{
-                width: 180,
-                height: 300,
-              }}
+              alt={`${config.itemName}画像`}
+              style={imgStyle}
             />
             <br />
             <a
               href={imageUrl}
-              download="tanzaku.png"
+              download={isSakura ? "kokorozashi.png" : "tanzaku.png"}
               className={css({
                 display: "inline-block",
                 marginTop: "6px",
@@ -167,6 +173,20 @@ export const TwitterDialog: React.FC<TwitterDialogProps> = ({
             })}
           >
             他のアプリで共有
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className={css({
+              background: "transparent",
+              color: "#666",
+              padding: "8px",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "14px",
+            })}
+          >
+            閉じる
           </button>
         </div>
       </div>

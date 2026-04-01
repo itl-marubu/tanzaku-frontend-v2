@@ -1,5 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { MODE_CONFIG } from "@/lib/festivalMode";
+import { festivalModeAtom } from "@/lib/festivalModeAtom";
+import { useAtomValue } from "jotai";
+import { useEffect, useRef, useState } from "react";
 import { css } from "styled-system/css";
 import { Logo } from "./Logo";
 import { QrCode } from "./qrcode";
@@ -12,32 +15,54 @@ type projectData = {
 };
 
 export const MetaInfo: React.FC = () => {
-  const songUrl = "/song.webm";
+  const mode = useAtomValue(festivalModeAtom);
+  const config = MODE_CONFIG[mode];
+  const songUrl = mode === "sakura" ? "/song-sakura.webm" : "/song.webm";
+
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [projectData, setProjectData] = useState({} as projectData);
 
+  // 初回ユーザーインタラクション待機
   useEffect(() => {
-    const audio = new Audio(songUrl);
-    audio.loop = true;
+    if (hasInteracted) return;
 
-    const handleUserInteraction = () => {
-      audio.play().catch((error) => {
-        console.error("error", error);
-      });
-      // イベントリスナーを一度だけ実行するために削除
-      document.removeEventListener("click", handleUserInteraction);
-      document.removeEventListener("touchstart", handleUserInteraction);
+    const handleInteraction = () => {
+      setHasInteracted(true);
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("touchstart", handleInteraction);
     };
 
-    // ユーザーインタラクションを待機
-    document.addEventListener("click", handleUserInteraction);
-    document.addEventListener("touchstart", handleUserInteraction);
+    document.addEventListener("click", handleInteraction);
+    document.addEventListener("touchstart", handleInteraction);
+
+    return () => {
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("touchstart", handleInteraction);
+    };
+  }, [hasInteracted]);
+
+  // モードが変わったら音楽を切り替え
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    const audio = new Audio(songUrl);
+    audio.loop = true;
+    audioRef.current = audio;
+
+    if (hasInteracted) {
+      audio.play().catch((error) => {
+        console.error("audio play error:", error);
+      });
+    }
 
     return () => {
       audio.pause();
-      document.removeEventListener("click", handleUserInteraction);
-      document.removeEventListener("touchstart", handleUserInteraction);
     };
-  }, []);
+  }, [songUrl, hasInteracted]);
 
   const currentDomain = location.hostname;
   return (
@@ -45,28 +70,63 @@ export const MetaInfo: React.FC = () => {
       <div
         style={{
           position: "fixed",
-          width: "35%",
-          top: "10vh",
-          right: "10px",
+          top: 0,
+          right: 0,
+          width: "40vw",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: "4vh 1.2vw",
+          boxSizing: "border-box",
         }}
       >
-        <Logo logoColor="#fff" style={{ marginTop: "100px" }} />
-        <p style={{ fontSize: "2rem", fontWeight: 700, marginTop: "80px" }}>
-          時間経過で短冊が切り替わります。
+        {mode === "sakura" ? (
+          <img
+            src="/sakura-rogo.svg"
+            alt="短冊の会　ロゴ"
+            style={{
+              width: "min(33vw, 700px)",
+              maxWidth: "100%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        ) : (
+          <Logo
+            logoColor="#fff"
+            width={750}
+            height={300}
+            style={{
+              width: "min(28vw, 560px)",
+              maxWidth: "100%",
+              height: "auto",
+            }}
+          />
+        )}
+        <p style={{ fontSize: "2rem", fontWeight: 700, marginTop: "6vh" }}>
+          時間経過で{config.itemName}が切り替わります。
           <br />
           どなたでもご参加ください！
         </p>
-        <div style={{ position: "fixed", bottom: "20px", right: "390px" }}>
+        <div
+          style={{
+            marginTop: "6vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <h2
             className={css({
               marginBottom: "10px",
             })}
           >
-            短冊の投稿はこちらから↓
+            {config.itemName}の投稿はこちらから↓
           </h2>
-          <div style={{ marginBottom: "80px" }}>
-            <QrCode url={`${currentDomain}`} />
-          </div>
+          <QrCode url={`${currentDomain}`} />
         </div>
       </div>
     </>

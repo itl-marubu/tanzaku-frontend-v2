@@ -1,34 +1,73 @@
+"use client";
+
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
+import { festivalModeAtom } from "@/lib/festivalModeAtom";
+import { useAtomValue } from "jotai";
 import { css } from "../../../styled-system/css";
 
-export default function Home() {
+export default function AdminPage() {
+  const mode = useAtomValue(festivalModeAtom);
+
   return (
     <div
       className={css({
         display: "flex",
         flexDirection: "column",
-        height: "100vh",
+        minHeight: "100vh",
       })}
     >
       <Navbar />
       <div
         className={css({
           width: "100%",
-          maxWidth: "1200px",
+          maxWidth: "600px",
           margin: "0 auto",
-          padding: "13px",
+          padding: "40px 16px",
         })}
       >
-        <div>
-          <h1 className={css({ fontSize: "48px", fontWeight: 700 })}>Admin</h1>
+        <h1
+          className={css({
+            fontSize: "32px",
+            fontWeight: 700,
+            marginBottom: "32px",
+          })}
+        >
+          フェスティバル管理
+        </h1>
+
+        <div
+          className={css({
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            padding: "24px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "16px",
+          })}
+        >
           <div>
-            <p>短冊の送信は、以下のフォームからお願いします。</p>
-            <p>メモ；いい感じのフォームを書く。手書きできても面白いかもね。</p>
+            <p
+              className={css({
+                fontSize: "14px",
+                color: "#666",
+                marginBottom: "4px",
+              })}
+            >
+              現在のモード
+            </p>
+            <p className={css({ fontSize: "24px", fontWeight: 700 })}>
+              {mode === "tanabata" ? "🎋 七夕モード" : "🌸 桜まつりモード"}
+            </p>
           </div>
+
+          <p className={css({ fontSize: "12px", color: "#999" })}>
+            モードの切り替えは <code>NEXT_PUBLIC_FESTIVAL_MODE</code>{" "}
+            環境変数で行います。
+          </p>
         </div>
-        <Footer />
       </div>
+      <Footer />
     </div>
   );
 }

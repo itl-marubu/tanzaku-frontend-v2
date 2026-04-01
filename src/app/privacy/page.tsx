@@ -1,10 +1,14 @@
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
+import { ACTIVE_MODE, MODE_CONFIG } from "@/lib/festivalMode";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { css } from "../../../styled-system/css";
+
+const { eventName } = MODE_CONFIG[ACTIVE_MODE];
+
 export const metadata: Metadata = {
-  title: "個人情報保護方針と外部送信規律に関する表示 | iTL七夕祭2025",
+  title: `個人情報保護方針と外部送信規律に関する表示 | ${eventName}`,
   description: "個人情報保護方針と外部送信規律に関する表示です。",
 };
 
@@ -49,7 +53,7 @@ export default function GtmInfoPage() {
           個人情報保護方針
         </h2>
         <p>
-          iTL七夕祭2025運営者（以下運営者）は、本ウェブサイト上で提供するサービス（以下,「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。
+          中央大学国際情報学部　行動企画サークル「◎部（まるぶ）」（以下運営者）は、本ウェブサイト上で提供するサービス（以下,「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。
         </p>
         <h3>第1条（個人情報）</h3>
         <p>
@@ -77,6 +81,9 @@ export default function GtmInfoPage() {
             ユーザーにご自身の登録情報の閲覧や変更、削除、ご利用状況の閲覧を行っていただくため
           </li>
           <li>有料サービスにおいて、ユーザーに利用料金を請求するため</li>
+          <li>
+            本サービスを通じて投稿されたメッセージ等のデータを、中央大学国際情報学部における学術研究（統計的分析・教育目的を含む）に利用するため。なお、研究に使用する際は個人を特定できない形に加工した上で取り扱います。
+          </li>
           <li>上記の利用目的に付随する目的</li>
         </ul>
         <h3>第4条（利用目的の変更）</h3>

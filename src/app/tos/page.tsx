@@ -1,10 +1,13 @@
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
+import { ACTIVE_MODE, MODE_CONFIG } from "@/lib/festivalMode";
 import type { Metadata } from "next";
 import { css } from "../../../styled-system/css";
 
+const { eventName } = MODE_CONFIG[ACTIVE_MODE];
+
 export const metadata: Metadata = {
-  title: "ご利用規約 | iTL七夕祭2025",
+  title: `ご利用規約 | ${eventName}`,
   description: "ご利用規約です。",
 };
 
@@ -41,7 +44,7 @@ export default function GtmInfoPage() {
           })}
         >
           <p>
-            この利用規約（以下，「本規約」といいます。）は，iTL七夕祭2025運営者（以下，「運営者」といいます。）がこのウェブサイト上で提供するサービス（以下，「本サービス」といいます。）の利用条件を定めるものです。登録ユーザーの皆さま（以下，「ユーザー」といいます。）には，本規約に従って，本サービスをご利用いただきます。
+            この利用規約（以下，「本規約」といいます。）は，中央大学国際情報学部　行動企画サークル「◎部（まるぶ）」（以下，「運営者」といいます。）がこのウェブサイト上で提供するサービス（以下，「本サービス」といいます。）の利用条件を定めるものです。登録ユーザーの皆さま（以下，「ユーザー」といいます。）には，本規約に従って，本サービスをご利用いただきます。
           </p>
           <h2
             className={css({
@@ -336,6 +339,26 @@ export default function GtmInfoPage() {
             <li>本規約の解釈にあたっては，日本法を準拠法とします。</li>
             <li>
               本契約に関する一切の紛争（裁判所の調停手続きを含む）は、訴額に応じて東京簡易裁判所または東京地方裁判所を第一審の専属的合意管轄裁判所とすることに合意する。
+            </li>
+          </ol>
+          <h2
+            className={css({
+              fontSize: "24px",
+              fontWeight: 700,
+              margin: "20px 0",
+            })}
+          >
+            第16条（投稿データの研究利用）
+          </h2>
+          <ol>
+            <li>
+              ユーザーが本サービスを通じて投稿したメッセージ等のデータは、中央大学国際情報学部における学術研究（統計的分析・教育目的を含む）に利用される場合があります。
+            </li>
+            <li>
+              前項の研究利用にあたっては、個人を特定できない形に加工した上で取り扱うものとします。
+            </li>
+            <li>
+              ユーザーは、本サービスに投稿することをもって、前各項に定める研究利用に同意したものとみなします。
             </li>
           </ol>
           <p

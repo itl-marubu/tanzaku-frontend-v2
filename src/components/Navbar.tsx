@@ -1,8 +1,14 @@
+"use client";
+
+import { festivalModeAtom } from "@/lib/festivalModeAtom";
 import clsx from "clsx";
+import { useAtomValue } from "jotai";
 import Link from "next/link";
 import { css } from "../../styled-system/css";
 
 export const Navbar: React.FC = () => {
+  const mode = useAtomValue(festivalModeAtom);
+
   return (
     <div
       className={css({
@@ -24,7 +30,7 @@ export const Navbar: React.FC = () => {
             }),
           )}
         >
-          短冊
+          {mode === "sakura" ? "iTL桜まつり" : "短冊"}
         </h1>
       </Link>
       <div
