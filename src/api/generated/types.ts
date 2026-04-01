@@ -4,842 +4,845 @@
  */
 
 export interface paths {
-    "/tanzaku": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * tanzaku一覧を取得
-         * @description すべてのtanzakuを新しい順で取得します
-         */
-        get: operations["getTanzakuList"];
-        put?: never;
-        /**
-         * 新しいtanzakuを作成
-         * @description 新しいtanzakuを作成します。通常投稿ではAIによるバリデーションが実行されます。
-         */
-        post: operations["createTanzaku"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/tanzaku": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/tanzaku/check/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 特定のtanzakuを取得
-         * @description 指定されたIDのtanzakuを取得します
-         */
-        get: operations["getTanzakuById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * tanzaku一覧を取得
+     * @description すべてのtanzakuを新しい順で取得します
+     */
+    get: operations["getTanzakuList"];
+    put?: never;
+    /**
+     * 新しいtanzakuを作成
+     * @description 新しいtanzakuを作成します。通常投稿ではAIによるバリデーションが実行されます。
+     */
+    post: operations["createTanzaku"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/tanzaku/check/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/tanzaku/client": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * クライアント表示用tanzakuを取得
-         * @description クライアント表示用のtanzakuを取得します。
-         *     `limit` 未指定時は10件、最大30件です。
-         *
-         */
-        get: operations["getClientTanzaku"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * 特定のtanzakuを取得
+     * @description 指定されたIDのtanzakuを取得します
+     */
+    get: operations["getTanzakuById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/tanzaku/client": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/google": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Google OAuth認証
-         * @description Google OAuth認証を行い、成功時はフロントエンドへトークン付きでリダイレクトします
-         */
-        get: operations["authWithGoogle"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * クライアント表示用tanzakuを取得
+     * @description クライアント表示用のtanzakuを取得します。
+     *     `limit` 未指定時は10件、最大30件です。
+     *
+     */
+    get: operations["getClientTanzaku"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/google": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/signup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 新規ユーザー登録
-         * @description 新しい管理ユーザーを登録します
-         */
-        post: operations["signup"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Google OAuth認証
+     * @description Google OAuth認証を行い、成功時はフロントエンドへトークン付きでリダイレクトします
+     */
+    get: operations["authWithGoogle"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/signup": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * ログイン
-         * @description 既存ユーザーとしてログインします
-         */
-        post: operations["login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * 新規ユーザー登録
+     * @description 新しい管理ユーザーを登録します
+     */
+    post: operations["signup"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * トークンのリフレッシュ
-         * @description アクセストークンをリフレッシュします
-         */
-        post: operations["refreshToken"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * ログイン
+     * @description 既存ユーザーとしてログインします
+     */
+    post: operations["login"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/refresh": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/manage": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 管理画面HTMLを取得
-         * @description Basic認証付きの管理画面HTMLを返します
-         */
-        get: operations["getManagePage"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * トークンのリフレッシュ
+     * @description アクセストークンをリフレッシュします
+     */
+    post: operations["refreshToken"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/manage/tanzakus": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 管理用tanzaku一覧を取得
-         * @description 管理画面向けに全tanzakuを取得します
-         */
-        get: operations["manageGetAllTanzaku"];
-        put?: never;
-        /**
-         * 管理用tanzakuの編集・削除
-         * @description 管理画面向けにtanzakuを更新または論理削除します
-         */
-        post: operations["manageEditTanzaku"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * 管理画面HTMLを取得
+     * @description Basic認証付きの管理画面HTMLを返します
+     */
+    get: operations["getManagePage"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage/tanzakus": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/manage/tanzakus/create": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 管理用tanzaku作成
-         * @description 管理画面からAIバリデーションなしでtanzakuを作成します
-         */
-        post: operations["manageCreateTanzaku"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * 管理用tanzaku一覧を取得
+     * @description 管理画面向けに全tanzakuを取得します
+     */
+    get: operations["manageGetAllTanzaku"];
+    put?: never;
+    /**
+     * 管理用tanzakuの編集・削除
+     * @description 管理画面向けにtanzakuを更新または論理削除します
+     */
+    post: operations["manageEditTanzaku"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage/tanzakus/create": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/manage/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * イベント一覧を取得
-         * @description 管理画面向けにイベント一覧を取得します
-         */
-        get: operations["manageGetEvents"];
-        put?: never;
-        /**
-         * イベントを作成
-         * @description 管理画面からイベントを作成します
-         */
-        post: operations["manageCreateEvent"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * 管理用tanzaku作成
+     * @description 管理画面からAIバリデーションなしでtanzakuを作成します
+     */
+    post: operations["manageCreateTanzaku"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage/events": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/manage/events/deactivate-all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 全イベントを非アクティブ化
-         * @description すべてのイベントの `isActive` を `false` にします
-         */
-        post: operations["manageDeactivateAllEvents"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * イベント一覧を取得
+     * @description 管理画面向けにイベント一覧を取得します
+     */
+    get: operations["manageGetEvents"];
+    put?: never;
+    /**
+     * イベントを作成
+     * @description 管理画面からイベントを作成します
+     */
+    post: operations["manageCreateEvent"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage/events/deactivate-all": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/manage/events/{id}/activate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * イベントをアクティブ化
-         * @description 指定イベントのみをアクティブ化します
-         */
-        post: operations["manageActivateEvent"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * 全イベントを非アクティブ化
+     * @description すべてのイベントの `isActive` を `false` にします
+     */
+    post: operations["manageDeactivateAllEvents"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage/events/{id}/activate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get?: never;
+    put?: never;
+    /**
+     * イベントをアクティブ化
+     * @description 指定イベントのみをアクティブ化します
+     */
+    post: operations["manageActivateEvent"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        Tanzaku: {
-            id: string;
-            content: string;
-            userName: string;
-            visiblePattern: boolean;
-            /** @enum {integer} */
-            validationResult: 0 | 1;
-            logicalDelete: boolean;
-            /** Format: date-time */
-            createdAt: string;
-            eventId?: string | null;
-        };
-        TanzakuWithEvent: components["schemas"]["Tanzaku"] & {
-            event?: components["schemas"]["EventSummary"] | null;
-        };
-        CreateTanzakuRequest: {
-            /** @description 14文字以内のメッセージ */
-            content: string;
-            userName: string;
-        };
-        AuthTokens: {
-            accessToken: string;
-            refreshToken: string;
-        };
-        SignupRequest: {
-            /** Format: email */
-            email: string;
-            password: string;
-        };
-        RefreshTokenRequest: {
-            refreshToken: string;
-        };
-        Error: {
-            error: string;
-        };
-        SuccessResponse: {
-            success: boolean;
-        };
-        SuccessWithIdResponse: {
-            success: boolean;
-            id: string;
-        };
-        EventSummary: {
-            id: string;
-            name: string;
-        };
-        Event: {
-            id: string;
-            name: string;
-            description?: string | null;
-            isActive: boolean;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        EventWithCount: components["schemas"]["Event"] & {
-            _count: {
-                tanzakus: number;
-            };
-        };
-        CreateEventRequest: {
-            id?: string;
-            name: string;
-            description?: string;
-        };
-        ManageCreateTanzakuRequest: components["schemas"]["CreateTanzakuRequest"] & {
-            /** @enum {integer} */
-            validationResult?: 0 | 1;
-            eventId?: string | null;
-        };
-        ManageTanzakuDeleteOperation: {
-            id: string;
-            /** @enum {string} */
-            operation: "delete";
-        };
-        ManageTanzakuUpdateOperation: {
-            id: string;
-            /** @enum {string} */
-            operation: "update";
-            content?: string;
-            userName?: string;
-            /** @enum {integer} */
-            validationResult?: 0 | 1;
-            eventId?: string | null;
-        };
+  schemas: {
+    Tanzaku: {
+      id: string;
+      content: string;
+      userName: string;
+      visiblePattern: boolean;
+      /** @enum {integer} */
+      validationResult: 0 | 1;
+      logicalDelete: boolean;
+      /** Format: date-time */
+      createdAt: string;
+      eventId?: string | null;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    TanzakuWithEvent: components["schemas"]["Tanzaku"] & {
+      event?: components["schemas"]["EventSummary"] | null;
+    };
+    CreateTanzakuRequest: {
+      /** @description 14文字以内のメッセージ */
+      content: string;
+      userName: string;
+    };
+    AuthTokens: {
+      accessToken: string;
+      refreshToken: string;
+    };
+    SignupRequest: {
+      /** Format: email */
+      email: string;
+      password: string;
+    };
+    RefreshTokenRequest: {
+      refreshToken: string;
+    };
+    Error: {
+      error: string;
+    };
+    SuccessResponse: {
+      success: boolean;
+    };
+    SuccessWithIdResponse: {
+      success: boolean;
+      id: string;
+    };
+    EventSummary: {
+      id: string;
+      name: string;
+    };
+    Event: {
+      id: string;
+      name: string;
+      description?: string | null;
+      isActive: boolean;
+      /** Format: date-time */
+      createdAt: string;
+    };
+    EventWithCount: components["schemas"]["Event"] & {
+      _count: {
+        tanzakus: number;
+      };
+    };
+    CreateEventRequest: {
+      id?: string;
+      name: string;
+      description?: string;
+    };
+    ManageCreateTanzakuRequest: components["schemas"]["CreateTanzakuRequest"] & {
+      /** @enum {integer} */
+      validationResult?: 0 | 1;
+      eventId?: string | null;
+    };
+    ManageTanzakuDeleteOperation: {
+      id: string;
+      /** @enum {string} */
+      operation: "delete";
+    };
+    ManageTanzakuUpdateOperation: {
+      id: string;
+      /** @enum {string} */
+      operation: "update";
+      content?: string;
+      userName?: string;
+      /** @enum {integer} */
+      validationResult?: 0 | 1;
+      eventId?: string | null;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    getTanzakuList: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description tanzaku一覧 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TanzakuWithEvent"][];
-                };
-            };
-        };
+  getTanzakuList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    createTanzaku: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description tanzaku一覧 */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateTanzakuRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["TanzakuWithEvent"][];
         };
-        responses: {
-            /** @description 作成されたtanzaku */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Tanzaku"];
-                };
-            };
-        };
+      };
     };
-    getTanzakuById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description tanzakuの詳細 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Tanzaku"];
-                };
-            };
-            /** @description tanzakuが見つかりません */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
+  };
+  createTanzaku: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getClientTanzaku: {
-        parameters: {
-            query?: {
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description tanzaku一覧 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Tanzaku"][];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateTanzakuRequest"];
+      };
     };
-    authWithGoogle: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description 作成されたtanzaku */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description 認証成功後にフロントエンドへリダイレクト */
-            302: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["Tanzaku"];
         };
+      };
     };
-    signup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignupRequest"];
-            };
-        };
-        responses: {
-            /** @description 認証トークン */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthTokens"];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
+  };
+  getTanzakuById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
     };
-    login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description tanzakuの詳細 */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignupRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["Tanzaku"];
         };
-        responses: {
-            /** @description 認証トークン */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthTokens"];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+      };
+      /** @description tanzakuが見つかりません */
+      404: {
+        headers: {
+          [name: string]: unknown;
         };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
     };
-    refreshToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RefreshTokenRequest"];
-            };
-        };
-        responses: {
-            /** @description 新しい認証トークン */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthTokens"];
-                };
-            };
-            /** @description 無効なリフレッシュトークン */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
+  };
+  getClientTanzaku: {
+    parameters: {
+      query?: {
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getManagePage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description tanzaku一覧 */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description 管理画面HTML */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/html": string;
-                };
-            };
-            /** @description 認証失敗 */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          "application/json": components["schemas"]["Tanzaku"][];
         };
+      };
     };
-    manageGetAllTanzaku: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 全tanzaku一覧 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TanzakuWithEvent"][];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
+  };
+  authWithGoogle: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    manageEditTanzaku: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description 認証成功後にフロントエンドへリダイレクト */
+      302: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": (components["schemas"]["ManageTanzakuDeleteOperation"] | components["schemas"]["ManageTanzakuUpdateOperation"])[];
-            };
+        content?: never;
+      };
+      /** @description エラー */
+      500: {
+        headers: {
+          [name: string]: unknown;
         };
-        responses: {
-            /** @description 編集成功 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SuccessResponse"];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["Error"];
         };
+      };
     };
-    manageCreateTanzaku: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ManageCreateTanzakuRequest"];
-            };
-        };
-        responses: {
-            /** @description 作成成功 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SuccessWithIdResponse"];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
+  };
+  signup: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    manageGetEvents: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description イベント一覧 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EventWithCount"][];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SignupRequest"];
+      };
     };
-    manageCreateEvent: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description 認証トークン */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateEventRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["AuthTokens"];
         };
-        responses: {
-            /** @description 作成成功 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SuccessWithIdResponse"];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+      };
+      /** @description エラー */
+      500: {
+        headers: {
+          [name: string]: unknown;
         };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
     };
-    manageDeactivateAllEvents: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 更新成功 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SuccessResponse"];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
+  };
+  login: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    manageActivateEvent: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 更新成功 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SuccessResponse"];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SignupRequest"];
+      };
     };
+    responses: {
+      /** @description 認証トークン */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuthTokens"];
+        };
+      };
+      /** @description エラー */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  refreshToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RefreshTokenRequest"];
+      };
+    };
+    responses: {
+      /** @description 新しい認証トークン */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuthTokens"];
+        };
+      };
+      /** @description 無効なリフレッシュトークン */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  getManagePage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 管理画面HTML */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "text/html": string;
+        };
+      };
+      /** @description 認証失敗 */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  manageGetAllTanzaku: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 全tanzaku一覧 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TanzakuWithEvent"][];
+        };
+      };
+      /** @description エラー */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  manageEditTanzaku: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": (
+          | components["schemas"]["ManageTanzakuDeleteOperation"]
+          | components["schemas"]["ManageTanzakuUpdateOperation"]
+        )[];
+      };
+    };
+    responses: {
+      /** @description 編集成功 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SuccessResponse"];
+        };
+      };
+      /** @description エラー */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  manageCreateTanzaku: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ManageCreateTanzakuRequest"];
+      };
+    };
+    responses: {
+      /** @description 作成成功 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SuccessWithIdResponse"];
+        };
+      };
+      /** @description エラー */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  manageGetEvents: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description イベント一覧 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EventWithCount"][];
+        };
+      };
+      /** @description エラー */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  manageCreateEvent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateEventRequest"];
+      };
+    };
+    responses: {
+      /** @description 作成成功 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SuccessWithIdResponse"];
+        };
+      };
+      /** @description エラー */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  manageDeactivateAllEvents: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 更新成功 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SuccessResponse"];
+        };
+      };
+      /** @description エラー */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  manageActivateEvent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description 更新成功 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SuccessResponse"];
+        };
+      };
+      /** @description エラー */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
 }
