@@ -20,10 +20,10 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [imageLoaded, setImageLoaded] = useState(false);
 
-    const isSakura = mode === "sakura";
+    const isTanzaku = mode !== "sakura";
 
     useEffect(() => {
-      if (isSakura) {
+      if (!isTanzaku) {
         // 桜モードは画像不要・即描画
         setImageLoaded(true);
         return;
@@ -41,7 +41,7 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
         setImage(img);
         setImageLoaded(true);
       };
-    }, [isSakura]);
+    }, [isTanzaku]);
 
     useEffect(() => {
       if (!imageLoaded) return;
@@ -51,14 +51,16 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      if (isSakura) {
-        drawSakuraCard(ctx, textLine1, textLine2, nameLine);
-      } else {
+      if (isTanzaku) {
+        canvas.style.writingMode = "vertical-rl";
         drawTanabataCard(ctx, image, textLine1, textLine2, nameLine);
+      } else {
+        canvas.style.writingMode = "horizontal-tb";
+        drawSakuraCard(ctx, textLine1, textLine2, nameLine);
       }
-    }, [textLine1, textLine2, nameLine, image, imageLoaded, isSakura]);
+    }, [textLine1, textLine2, nameLine, image, imageLoaded, isTanzaku]);
 
-    if (isSakura) {
+    if (isTanzaku) {
       return (
         <canvas
           ref={(node) => {
@@ -69,8 +71,9 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
               ref.current = node;
             }
           }}
-          width={375}
-          height={225}
+          width={300}
+          height={500}
+          className={styles.animated}
           {...props}
         />
       );
@@ -86,9 +89,8 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
             ref.current = node;
           }
         }}
-        width={300}
-        height={500}
-        className={styles.animated}
+        width={375}
+        height={225}
         {...props}
       />
     );
