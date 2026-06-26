@@ -20,7 +20,7 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [imageLoaded, setImageLoaded] = useState(false);
 
-    const isTanzaku = mode !== "sakura";
+    const isTanzaku = mode === "tanabata";
 
     useEffect(() => {
       if (!isTanzaku) {
@@ -52,10 +52,8 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
       if (!ctx) return;
 
       if (isTanzaku) {
-        canvas.style.writingMode = "vertical-rl";
         drawTanabataCard(ctx, image, textLine1, textLine2, nameLine);
       } else {
-        canvas.style.writingMode = "horizontal-tb";
         drawSakuraCard(ctx, textLine1, textLine2, nameLine);
       }
     }, [textLine1, textLine2, nameLine, image, imageLoaded, isTanzaku]);
