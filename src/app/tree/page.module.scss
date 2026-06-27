@@ -3,6 +3,10 @@
   grid-template-columns: 1fr 1fr;
   gap: 50px;
   height: 100vh;
+  // position: relative にすることで絶対配置の .sasa / 短冊カードの
+  // 包含ブロックを .main にし、overflow: hidden を効かせてビューポート
+  // 境界でクリップする（解像度に依存せずスクロールバーを抑制）。
+  position: relative;
   overflow: hidden;
   font-family: var(--font-noto-sans-jp), sans-serif;
   color: #fff;
