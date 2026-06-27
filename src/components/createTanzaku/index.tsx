@@ -33,6 +33,13 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
     // Yuji Syukuはunicode-rangeでサブセット分割されているため、実際に描画する
     // テキストを渡して必要な全サブセットの読み込みを待つ。
     useEffect(() => {
+      // Font Loading API 非対応環境では即座にフォールバック描画へ進める
+      // （document.fonts.load は未対応だと同期例外になり .catch で拾えない）。
+      if (!document.fonts?.load) {
+        setFontReadyFor(sample);
+        return;
+      }
+
       let active = true;
       document.fonts
         .load(`50px "Yuji Syuku"`, sample)
