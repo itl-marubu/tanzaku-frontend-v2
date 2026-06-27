@@ -19,8 +19,25 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [fontReady, setFontReady] = useState(false);
 
     const isTanzaku = mode === "tanabata";
+
+    // canvasはビットマップで、描画後にフォントが届いても再描画されない。
+    // 描画前にWebフォントの読み込み完了を待つ（失敗時もフォールバックで描画）。
+    // Yuji Syukuはunicode-rangeでサブセット分割されているため、実際に描画する
+    // テキストを渡して必要な全サブセットの読み込みを待つ。
+    useEffect(() => {
+      let active = true;
+      const sample = `${textLine1}${textLine2 ?? ""}${nameLine}`;
+      document.fonts
+        .load(`50px "Yuji Syuku"`, sample)
+        .then(() => active && setFontReady(true))
+        .catch(() => active && setFontReady(true));
+      return () => {
+        active = false;
+      };
+    }, [textLine1, textLine2, nameLine]);
 
     useEffect(() => {
       if (!isTanzaku) {
@@ -35,7 +52,8 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
       if (!ctx) return;
 
       const img = new Image();
-      const random = Math.floor(Math.random() * 7);
+      // 背景画像は 1.webp〜7.webp が存在する（0.webp は無い）
+      const random = Math.floor(Math.random() * 7) + 1;
       img.src = `/tanzaku/${random}.webp`;
       img.onload = () => {
         setImage(img);
@@ -44,7 +62,7 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
     }, [isTanzaku]);
 
     useEffect(() => {
-      if (!imageLoaded) return;
+      if (!imageLoaded || !fontReady) return;
 
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -56,7 +74,15 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
       } else {
         drawSakuraCard(ctx, textLine1, textLine2, nameLine);
       }
-    }, [textLine1, textLine2, nameLine, image, imageLoaded, isTanzaku]);
+    }, [
+      textLine1,
+      textLine2,
+      nameLine,
+      image,
+      imageLoaded,
+      fontReady,
+      isTanzaku,
+    ]);
 
     if (isTanzaku) {
       return (
