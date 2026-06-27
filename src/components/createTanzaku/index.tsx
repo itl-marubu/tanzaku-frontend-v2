@@ -9,18 +9,49 @@ type TanzakuProps = {
   textLine2?: string;
   nameLine: string;
   mode?: FestivalMode;
+  // canvasへの描画完了後に呼ばれる。フォント読み込み待ちで描画が
+  // 遅延するため、toDataURL等のキャプチャはこのコールバック経由で行う。
+  onDraw?: () => void;
 } & React.HTMLAttributes<HTMLCanvasElement>;
 
 export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
   function CreateTanzaku(
-    { textLine1, textLine2, nameLine, mode = "tanabata", ...props },
+    { textLine1, textLine2, nameLine, mode = "tanabata", onDraw, ...props },
     ref,
   ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [imageLoaded, setImageLoaded] = useState(false);
+    // フォント準備状態は「どのテキストに対して準備できたか」で管理する。
+    // テキストが変わると新しいサブセットが必要になるため、未準備扱いに戻す。
+    const [fontReadyFor, setFontReadyFor] = useState<string | null>(null);
 
     const isTanzaku = mode === "tanabata";
+
+    const sample = `${textLine1}${textLine2 ?? ""}${nameLine}`;
+    const fontReady = fontReadyFor === sample;
+
+    // canvasはビットマップで、描画後にフォントが届いても再描画されない。
+    // 描画前にWebフォントの読み込み完了を待つ（失敗時もフォールバックで描画）。
+    // Yuji Syukuはunicode-rangeでサブセット分割されているため、実際に描画する
+    // テキストを渡して必要な全サブセットの読み込みを待つ。
+    useEffect(() => {
+      // Font Loading API 非対応環境では即座にフォールバック描画へ進める
+      // （document.fonts.load は未対応だと同期例外になり .catch で拾えない）。
+      if (!document.fonts?.load) {
+        setFontReadyFor(sample);
+        return;
+      }
+
+      let active = true;
+      document.fonts
+        .load(`50px "Yuji Syuku"`, sample)
+        .then(() => active && setFontReadyFor(sample))
+        .catch(() => active && setFontReadyFor(sample));
+      return () => {
+        active = false;
+      };
+    }, [sample]);
 
     useEffect(() => {
       if (!isTanzaku) {
@@ -35,7 +66,8 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
       if (!ctx) return;
 
       const img = new Image();
-      const random = Math.floor(Math.random() * 7);
+      // 背景画像は 1.webp〜7.webp が存在する（0.webp は無い）
+      const random = Math.floor(Math.random() * 7) + 1;
       img.src = `/tanzaku/${random}.webp`;
       img.onload = () => {
         setImage(img);
@@ -44,7 +76,7 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
     }, [isTanzaku]);
 
     useEffect(() => {
-      if (!imageLoaded) return;
+      if (!imageLoaded || !fontReady) return;
 
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -56,7 +88,19 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
       } else {
         drawSakuraCard(ctx, textLine1, textLine2, nameLine);
       }
-    }, [textLine1, textLine2, nameLine, image, imageLoaded, isTanzaku]);
+
+      // 描画完了を通知（キャプチャ等のために遅延描画後に呼ぶ）
+      onDraw?.();
+    }, [
+      textLine1,
+      textLine2,
+      nameLine,
+      image,
+      imageLoaded,
+      fontReady,
+      isTanzaku,
+      onDraw,
+    ]);
 
     if (isTanzaku) {
       return (
