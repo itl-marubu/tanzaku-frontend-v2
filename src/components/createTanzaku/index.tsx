@@ -107,6 +107,7 @@ function drawTanabataCard(
   ctx.save();
   ctx.translate(45, 100);
   ctx.rotate((85 * Math.PI) / 180);
+  ctx.canvas.style.writingMode = "vertical-rl";
   ctx.font = "50px Yuji Syuku, HG正楷書体-PRO, serif";
   ctx.fillStyle = "black";
   ctx.fillText(textLine1, 25, -110);
