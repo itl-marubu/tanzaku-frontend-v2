@@ -61,6 +61,7 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
     if (isTanzaku) {
       return (
         <canvas
+          {...props}
           ref={(node) => {
             canvasRef.current = node;
             if (typeof ref === "function") {
@@ -71,14 +72,16 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
           }}
           width={300}
           height={500}
-          className={styles.animated}
-          {...props}
+          className={[styles.animated, props.className]
+            .filter(Boolean)
+            .join(" ")}
         />
       );
     }
 
     return (
       <canvas
+        {...props}
         ref={(node) => {
           canvasRef.current = node;
           if (typeof ref === "function") {
@@ -89,7 +92,6 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
         }}
         width={375}
         height={225}
-        {...props}
       />
     );
   },
@@ -123,6 +125,9 @@ function drawSakuraCard(
   textLine2: string | undefined,
   nameLine: string,
 ) {
+  // 短冊モードで設定された縦書きが要素に残らないよう明示的に横書きへ戻す
+  ctx.canvas.style.writingMode = "horizontal-tb";
+
   const scale = 0.75;
   const cardWidth = 500 * scale;
   const cardHeight = 300 * scale;
