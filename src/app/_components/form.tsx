@@ -5,7 +5,7 @@ import { MODE_CONFIG } from "@/lib/festivalMode";
 import { festivalModeAtom } from "@/lib/festivalModeAtom";
 import { sendGAEvent } from "@next/third-parties/google";
 import { useAtomValue } from "jotai";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { css } from "styled-system/css";
 import { PreviewModal } from "./PreviewModal";
@@ -77,6 +77,9 @@ export const Form: React.FC = () => {
         });
       }
       setShowToast(true);
+      // 新しい画像は描画完了コールバック(handleTanzakuDraw)で設定される。
+      // 前回の画像が一瞬残らないようクリアしておく。
+      setTwitterImageUrl(null);
       setTwitterDialogData(data);
       setShowTwitterDialog(true);
     } catch (error) {
@@ -100,12 +103,14 @@ export const Form: React.FC = () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (showTwitterDialog && tanzakuCanvasRef.current && twitterDialogData) {
-      const url = tanzakuCanvasRef.current.toDataURL("image/png");
-      setTwitterImageUrl(url);
+  // 隠しcanvasはフォント読み込み待ちで描画が遅延するため、描画完了
+  // コールバック経由でキャプチャする（即時 toDataURL だと空白/古い画像になる）。
+  const handleTanzakuDraw = useCallback(() => {
+    const canvas = tanzakuCanvasRef.current;
+    if (canvas) {
+      setTwitterImageUrl(canvas.toDataURL("image/png"));
     }
-  }, [showTwitterDialog, twitterDialogData]);
+  }, []);
 
   return (
     <>
@@ -260,6 +265,7 @@ export const Form: React.FC = () => {
           textLine1={twitterDialogData?.message?.slice(0, 7) || ""}
           textLine2={twitterDialogData?.message?.slice(7) || ""}
           nameLine={twitterDialogData?.name || ""}
+          onDraw={handleTanzakuDraw}
         />
       </div>
       {showTwitterDialog && twitterDialogData && (

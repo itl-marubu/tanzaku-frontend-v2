@@ -9,11 +9,14 @@ type TanzakuProps = {
   textLine2?: string;
   nameLine: string;
   mode?: FestivalMode;
+  // canvasへの描画完了後に呼ばれる。フォント読み込み待ちで描画が
+  // 遅延するため、toDataURL等のキャプチャはこのコールバック経由で行う。
+  onDraw?: () => void;
 } & React.HTMLAttributes<HTMLCanvasElement>;
 
 export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
   function CreateTanzaku(
-    { textLine1, textLine2, nameLine, mode = "tanabata", ...props },
+    { textLine1, textLine2, nameLine, mode = "tanabata", onDraw, ...props },
     ref,
   ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -85,6 +88,9 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
       } else {
         drawSakuraCard(ctx, textLine1, textLine2, nameLine);
       }
+
+      // 描画完了を通知（キャプチャ等のために遅延描画後に呼ぶ）
+      onDraw?.();
     }, [
       textLine1,
       textLine2,
@@ -93,6 +99,7 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
       imageLoaded,
       fontReady,
       isTanzaku,
+      onDraw,
     ]);
 
     if (isTanzaku) {
