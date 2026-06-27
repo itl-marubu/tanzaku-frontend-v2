@@ -19,9 +19,14 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [imageLoaded, setImageLoaded] = useState(false);
-    const [fontReady, setFontReady] = useState(false);
+    // フォント準備状態は「どのテキストに対して準備できたか」で管理する。
+    // テキストが変わると新しいサブセットが必要になるため、未準備扱いに戻す。
+    const [fontReadyFor, setFontReadyFor] = useState<string | null>(null);
 
     const isTanzaku = mode === "tanabata";
+
+    const sample = `${textLine1}${textLine2 ?? ""}${nameLine}`;
+    const fontReady = fontReadyFor === sample;
 
     // canvasはビットマップで、描画後にフォントが届いても再描画されない。
     // 描画前にWebフォントの読み込み完了を待つ（失敗時もフォールバックで描画）。
@@ -29,15 +34,14 @@ export const CreateTanzaku = forwardRef<HTMLCanvasElement, TanzakuProps>(
     // テキストを渡して必要な全サブセットの読み込みを待つ。
     useEffect(() => {
       let active = true;
-      const sample = `${textLine1}${textLine2 ?? ""}${nameLine}`;
       document.fonts
         .load(`50px "Yuji Syuku"`, sample)
-        .then(() => active && setFontReady(true))
-        .catch(() => active && setFontReady(true));
+        .then(() => active && setFontReadyFor(sample))
+        .catch(() => active && setFontReadyFor(sample));
       return () => {
         active = false;
       };
-    }, [textLine1, textLine2, nameLine]);
+    }, [sample]);
 
     useEffect(() => {
       if (!isTanzaku) {
