@@ -117,11 +117,15 @@ export const MetaInfo: React.FC = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            // QRコードと案内文を画面比率で約3%分下へ移動
+            transform: "translateY(3vh)",
           }}
         >
           <h2
             className={css({
               marginBottom: "10px",
+              // 既存より約2倍の大きさに（preflight reset で実質1rem のため）
+              fontSize: "2rem",
             })}
           >
             {config.itemName}の投稿はこちらから↓
