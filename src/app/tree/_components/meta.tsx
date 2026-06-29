@@ -117,6 +117,8 @@ export const MetaInfo: React.FC = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            // QRコードと案内文を画面比率で約3%分下へ移動
+            transform: "translateY(3vh)",
           }}
         >
           <h2
