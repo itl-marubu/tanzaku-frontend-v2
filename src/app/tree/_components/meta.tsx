@@ -82,6 +82,9 @@ export const MetaInfo: React.FC = () => {
           textAlign: "center",
           padding: "4vh 1.2vw",
           boxSizing: "border-box",
+          // 空白を詰めた分の再センタリングを打ち消し、ロゴを約5%下げつつ
+          // QRコード下端の位置は変えないために全体を下方向へずらす
+          transform: "translateY(2.5vh)",
         }}
       >
         {mode === "sakura" ? (
@@ -107,14 +110,14 @@ export const MetaInfo: React.FC = () => {
             }}
           />
         )}
-        <p style={{ fontSize: "2rem", fontWeight: 700, marginTop: "6vh" }}>
+        <p style={{ fontSize: "2rem", fontWeight: 700, marginTop: "3.5vh" }}>
           時間経過で{config.itemName}が切り替わります。
           <br />
           どなたでもご参加ください！
         </p>
         <div
           style={{
-            marginTop: "6vh",
+            marginTop: "3.5vh",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
