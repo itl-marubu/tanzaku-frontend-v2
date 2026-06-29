@@ -64,7 +64,8 @@ export const MetaInfo: React.FC = () => {
     };
   }, [songUrl, hasInteracted]);
 
-  const currentDomain = location.hostname;
+  // QR にプロトコル(https://)を含めないと URL として認識されない端末があるため origin を使用
+  const currentDomain = location.origin;
   return (
     <>
       <div
