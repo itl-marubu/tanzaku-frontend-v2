@@ -15,7 +15,7 @@ export const QrCode: React.FC<qrcodeType> = ({ url }) => {
         errorCorrectionLevel: "M",
         margin: 3,
         scale: 4,
-        width: 400,
+        width: 200,
         color: {
           dark: "#000",
           light: "#fff",
