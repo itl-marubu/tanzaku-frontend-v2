@@ -64,8 +64,8 @@ export const MetaInfo: React.FC = () => {
     };
   }, [songUrl, hasInteracted]);
 
-  // QR にプロトコル(https://)を含めないと URL として認識されない端末があるため origin を使用
-  const currentDomain = location.origin;
+  // QR にプロトコルを含めないと URL として認識されない端末があるため origin を使用
+  const currentOrigin = location.origin;
   return (
     <>
       <div
@@ -131,7 +131,7 @@ export const MetaInfo: React.FC = () => {
           >
             {config.itemName}の投稿はこちらから↓
           </h2>
-          <QrCode url={`${currentDomain}`} />
+          <QrCode url={`${currentOrigin}`} />
         </div>
       </div>
     </>
