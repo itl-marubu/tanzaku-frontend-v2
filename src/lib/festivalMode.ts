@@ -19,7 +19,7 @@ export const MODE_CONFIG = {
     errorMessage: "短冊の送信に失敗しました。もう一度お試しください。",
     shareTitle: "iTL七夕祭 短冊投稿",
     shareText: (message: string, name: string) =>
-      `#iTL七夕祭2025 に短冊を投稿しました！\nキャンパスロビーでご覧ください！\n@itl_marubu #iTL七夕祭\n\n「${message}」\n\nお名前：${name}`,
+      `#iTL七夕祭2026 に短冊を投稿しました！\nキャンパスロビーでご覧ください！\n@itl_marubu #iTL七夕祭\n\n「${message}」\n\nお名前：${name}`,
   },
   sakura: {
     eventName: "iTL桜まつり",
