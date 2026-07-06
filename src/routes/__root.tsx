@@ -1,3 +1,4 @@
+import { NotFound } from "@/components/NotFound";
 import { ACTIVE_MODE } from "@/lib/activeMode";
 import { MODE_CONFIG } from "@/lib/festivalMode";
 import { HeadContent, Outlet, createRootRoute } from "@tanstack/react-router";
@@ -12,6 +13,7 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootLayout,
+  notFoundComponent: NotFound,
 });
 
 function RootLayout() {
