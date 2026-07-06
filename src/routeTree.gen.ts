@@ -13,6 +13,8 @@ import { Route as TreeRouteImport } from './routes/tree'
 import { Route as TosRouteImport } from './routes/tos'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as AuthGoogleRouteImport } from './routes/auth/google'
 
 const TreeRoute = TreeRouteImport.update({
   id: '/tree',
@@ -34,18 +36,32 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/auth/',
+  path: '/auth/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthGoogleRoute = AuthGoogleRouteImport.update({
+  id: '/auth/google',
+  path: '/auth/google',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
   '/tos': typeof TosRoute
   '/tree': typeof TreeRoute
+  '/auth/google': typeof AuthGoogleRoute
+  '/auth/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
   '/tos': typeof TosRoute
   '/tree': typeof TreeRoute
+  '/auth/google': typeof AuthGoogleRoute
+  '/auth': typeof AuthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +69,16 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/tos': typeof TosRoute
   '/tree': typeof TreeRoute
+  '/auth/google': typeof AuthGoogleRoute
+  '/auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/privacy' | '/tos' | '/tree'
+  fullPaths: '/' | '/privacy' | '/tos' | '/tree' | '/auth/google' | '/auth/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/privacy' | '/tos' | '/tree'
-  id: '__root__' | '/' | '/privacy' | '/tos' | '/tree'
+  to: '/' | '/privacy' | '/tos' | '/tree' | '/auth/google' | '/auth'
+  id:
+    '__root__' | '/' | '/privacy' | '/tos' | '/tree' | '/auth/google' | '/auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +86,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TosRoute: typeof TosRoute
   TreeRoute: typeof TreeRoute
+  AuthGoogleRoute: typeof AuthGoogleRoute
+  AuthIndexRoute: typeof AuthIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +120,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/': {
+      id: '/auth/'
+      path: '/auth'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/google': {
+      id: '/auth/google'
+      path: '/auth/google'
+      fullPath: '/auth/google'
+      preLoaderRoute: typeof AuthGoogleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +142,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TosRoute: TosRoute,
   TreeRoute: TreeRoute,
+  AuthGoogleRoute: AuthGoogleRoute,
+  AuthIndexRoute: AuthIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
