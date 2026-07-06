@@ -2,6 +2,7 @@
 
 import { getRecentTanzaku } from "@/api/client";
 import { CreateTanzaku } from "@/components/createTanzaku";
+import tanzakuStyles from "@/components/createTanzaku/index.module.scss";
 import { festivalModeAtom } from "@/lib/festivalModeAtom";
 import { useAtomValue } from "jotai";
 import { useEffect, useRef, useState } from "react";
@@ -32,6 +33,7 @@ const SAKURA_FALLBACK_BG_HEIGHT = 1000;
 const SAKURA_POSITION_JITTER_RATIO = 0.7;
 const SAKURA_MARGIN_TOP_VH = 5;
 const SAKURA_MARGIN_LEFT_VH = 5;
+const TANABATA_ITHIEL_IMAGE_SRC = "/tanabata-ithiel.png";
 
 const squaredDistance = (a: SakuraCell, b: SakuraCell) => {
   const dx = a.centerXVw - b.centerXVw;
@@ -162,6 +164,7 @@ export const TanzakuToImage: React.FC = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [tanzakuArray, setTanzakuArray] = useState<TanzakuItem[]>([]);
   const [sakuraPositions, setSakuraPositions] = useState<Position[]>([]);
+  const [ithielCardIndex, setIthielCardIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchTanzaku = async () => {
@@ -185,6 +188,15 @@ export const TanzakuToImage: React.FC = () => {
   useEffect(() => {
     if (!isSakura || tanzakuArray.length === 0) return;
     setSakuraPositions(generateSakuraPositions(tanzakuArray.length));
+  }, [isSakura, tanzakuArray]);
+
+  useEffect(() => {
+    if (isSakura || tanzakuArray.length === 0) {
+      setIthielCardIndex(null);
+      return;
+    }
+
+    setIthielCardIndex(Math.floor(Math.random() * tanzakuArray.length));
   }, [isSakura, tanzakuArray]);
 
   useEffect(() => {
@@ -275,6 +287,32 @@ export const TanzakuToImage: React.FC = () => {
       {canPlaceCards &&
         tanzakuArray.map((tanzaku, index) => {
           const positionIndex = index % positionArray.length;
+          const cardStyle = {
+            position: "absolute" as const,
+            ...(isSakura
+              ? { width: `${SAKURA_CARD_WIDTH_VW}vw`, height: "auto" }
+              : { height: "220px", width: "auto" }),
+            left: positionArray[positionIndex].x,
+            top: positionArray[positionIndex].y,
+          };
+
+          if (!isSakura && index === ithielCardIndex) {
+            return (
+              <img
+                key={`${tanzaku.id}-ithiel`}
+                src={TANABATA_ITHIEL_IMAGE_SRC}
+                alt=""
+                aria-hidden="true"
+                className={tanzakuStyles.animated}
+                style={{
+                  ...cardStyle,
+                  objectFit: "contain",
+                  pointerEvents: "none",
+                }}
+              />
+            );
+          }
+
           return (
             <CreateTanzaku
               key={tanzaku.id}
@@ -282,14 +320,7 @@ export const TanzakuToImage: React.FC = () => {
               textLine1={tanzaku.textLine1}
               textLine2={tanzaku.textLine2}
               nameLine={tanzaku.userName}
-              style={{
-                position: "absolute",
-                ...(isSakura
-                  ? { width: `${SAKURA_CARD_WIDTH_VW}vw`, height: "auto" }
-                  : { height: "220px", width: "auto" }),
-                left: positionArray[positionIndex].x,
-                top: positionArray[positionIndex].y,
-              }}
+              style={cardStyle}
             />
           );
         })}
