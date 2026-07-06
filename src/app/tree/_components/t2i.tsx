@@ -157,6 +157,7 @@ const tanabataPositions = [
 export const TanzakuToImage: React.FC = () => {
   const mode = useAtomValue(festivalModeAtom);
   const isSakura = mode === "sakura";
+  const isTanabata = mode === "tanabata";
   const cardLimit = isSakura ? SAKURA_CARD_LIMIT : TANABATA_CARD_LIMIT;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -191,13 +192,13 @@ export const TanzakuToImage: React.FC = () => {
   }, [isSakura, tanzakuArray]);
 
   useEffect(() => {
-    if (isSakura || tanzakuArray.length === 0) {
+    if (!isTanabata || tanzakuArray.length === 0) {
       setIthielCardIndex(null);
       return;
     }
 
     setIthielCardIndex(Math.floor(Math.random() * tanzakuArray.length));
-  }, [isSakura, tanzakuArray]);
+  }, [isTanabata, tanzakuArray]);
 
   useEffect(() => {
     setImageLoaded(false);
@@ -296,7 +297,7 @@ export const TanzakuToImage: React.FC = () => {
             top: positionArray[positionIndex].y,
           };
 
-          if (!isSakura && index === ithielCardIndex) {
+          if (isTanabata && index === ithielCardIndex) {
             return (
               <img
                 key={`${tanzaku.id}-ithiel`}
