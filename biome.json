@@ -7,7 +7,14 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["node_modules", "dist", "build", "public"]
+    "ignore": [
+      "node_modules",
+      "dist",
+      "build",
+      "public",
+      "src/routeTree.gen.ts",
+      "src/api/generated"
+    ]
   },
   "formatter": {
     "enabled": true,

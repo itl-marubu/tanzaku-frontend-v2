@@ -34,14 +34,14 @@ jobs:
           node-version: 22
           cache: "pnpm"
       - run: pnpm install
-      - run: pnpm run build-opennextjs
+      - run: pnpm build
         env:
-          NEXT_PUBLIC_FESTIVAL_MODE: ${{ inputs.festival_mode }}
+          VITE_FESTIVAL_MODE: ${{ inputs.festival_mode }}
       - uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: ".open-next"
+          command: deploy
 
   release:
     runs-on: ubuntu-latest

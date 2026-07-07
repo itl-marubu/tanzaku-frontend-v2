@@ -1,8 +1,9 @@
+import { splitTanzakuText } from "@/lib/tanzakuText";
 import createClient from "openapi-fetch";
 import type { components, paths } from "./generated/types";
 
 export const client = createClient<paths>({
-  baseUrl: process.env.NEXT_PUBLIC_TANZ_BACKEND,
+  baseUrl: import.meta.env.VITE_TANZ_BACKEND,
 });
 
 export const getTanzakuList = async () => {
@@ -22,17 +23,23 @@ export const createTanzaku = async (data: {
 
 type ClientTanzaku = components["schemas"]["Tanzaku"];
 
+export type DisplayTanzaku = ClientTanzaku & {
+  textLine1: string;
+  textLine2: string;
+};
+
 const DEFAULT_RECENT_LIMIT = 10;
 const MAX_RECENT_LIMIT = 30;
 
-const splitContentForDisplay = (tanzakuList: ClientTanzaku[]) =>
+const splitContentForDisplay = (
+  tanzakuList: ClientTanzaku[],
+): DisplayTanzaku[] =>
   tanzakuList.map((tanzaku) => {
-    const textLine1 = tanzaku.content?.slice(0, 7);
-    const textLine2 = tanzaku.content?.slice(7);
+    const { line1, line2 } = splitTanzakuText(tanzaku.content ?? "");
     return {
       ...tanzaku,
-      textLine1,
-      textLine2,
+      textLine1: line1,
+      textLine2: line2,
     };
   });
 

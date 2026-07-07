@@ -1,32 +1,12 @@
-import Link from "next/link";
-import { css } from "../../styled-system/css";
+import { Link } from "@tanstack/react-router";
 
 export const Footer: React.FC = () => {
   return (
-    <div
-      className={css({
-        padding: "30px 0",
-        display: "flex",
-        flexDirection: "column",
-        marginX: "20px",
-        alignItems: "center",
-        md: {
-          flexDirection: "row",
-          justifyContent: "space-between",
-        },
-      })}
-    >
+    <div className="mx-5 flex flex-col items-center py-[30px] md:flex-row md:justify-between">
       <p>©2026 iTL Marubu</p>
-      <span
-        className={css({
-          display: "flex",
-          fontSize: "14px",
-          gap: "10px",
-          fontWeight: 400,
-        })}
-      >
-        <Link href="/privacy">個人情報保護方針</Link>
-        <Link href="/tos">ご利用規約</Link>
+      <span className="flex gap-2.5 text-sm font-normal">
+        <Link to="/privacy">個人情報保護方針</Link>
+        <Link to="/tos">ご利用規約</Link>
       </span>
     </div>
   );

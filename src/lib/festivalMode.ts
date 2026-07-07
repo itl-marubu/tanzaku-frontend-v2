@@ -1,12 +1,7 @@
+// モードごとの文言・設定定義（環境変数の読み取りは lib/activeMode.ts が担う）
 export type FestivalMode = "tanabata" | "sakura";
 
 export const DEFAULT_MODE: FestivalMode = "tanabata";
-
-const envMode = process.env.NEXT_PUBLIC_FESTIVAL_MODE as
-  | FestivalMode
-  | undefined;
-export const ACTIVE_MODE: FestivalMode =
-  envMode === "tanabata" || envMode === "sakura" ? envMode : DEFAULT_MODE;
 
 export const MODE_CONFIG = {
   tanabata: {
