@@ -15,6 +15,7 @@ import { useAdminAuth } from "@/lib/adminAuth";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { EditModal, type TanzakuFormValues } from "./EditModal";
 import { EventSection } from "./EventSection";
+import { FestivalModeSection } from "./FestivalModeSection";
 import { StatsCards } from "./StatsCards";
 import { TanzakuTable } from "./TanzakuTable";
 import { downloadTanzakuCsv } from "./csvExport";
@@ -350,6 +351,11 @@ export const AdminDashboard: React.FC = () => {
         )}
 
         <StatsCards stats={stats} />
+
+        <FestivalModeSection
+          onSuccess={(text) => showMessage("success", text)}
+          onError={handleError}
+        />
 
         <EventSection
           events={allEvents}
