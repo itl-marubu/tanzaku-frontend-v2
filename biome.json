@@ -12,7 +12,8 @@
       "dist",
       "build",
       "public",
-      "src/routeTree.gen.ts"
+      "src/routeTree.gen.ts",
+      "src/api/generated"
     ]
   },
   "formatter": {
