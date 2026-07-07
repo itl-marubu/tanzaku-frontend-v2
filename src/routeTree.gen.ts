@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TreeRouteImport } from './routes/tree'
 import { Route as TosRouteImport } from './routes/tos'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AuthGoogleRouteImport } from './routes/auth/google'
 
 const TreeRoute = TreeRouteImport.update({
@@ -31,6 +33,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -41,6 +48,11 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AuthGoogleRoute = AuthGoogleRouteImport.update({
   id: '/auth/google',
   path: '/auth/google',
@@ -49,10 +61,12 @@ const AuthGoogleRoute = AuthGoogleRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/tos': typeof TosRoute
   '/tree': typeof TreeRoute
   '/auth/google': typeof AuthGoogleRoute
+  '/admin/': typeof AdminIndexRoute
   '/auth/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
@@ -61,28 +75,48 @@ export interface FileRoutesByTo {
   '/tos': typeof TosRoute
   '/tree': typeof TreeRoute
   '/auth/google': typeof AuthGoogleRoute
+  '/admin': typeof AdminIndexRoute
   '/auth': typeof AuthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/tos': typeof TosRoute
   '/tree': typeof TreeRoute
   '/auth/google': typeof AuthGoogleRoute
+  '/admin/': typeof AdminIndexRoute
   '/auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/privacy' | '/tos' | '/tree' | '/auth/google' | '/auth/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/privacy'
+    | '/tos'
+    | '/tree'
+    | '/auth/google'
+    | '/admin/'
+    | '/auth/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/privacy' | '/tos' | '/tree' | '/auth/google' | '/auth'
+  to: '/' | '/privacy' | '/tos' | '/tree' | '/auth/google' | '/admin' | '/auth'
   id:
-    '__root__' | '/' | '/privacy' | '/tos' | '/tree' | '/auth/google' | '/auth/'
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/privacy'
+    | '/tos'
+    | '/tree'
+    | '/auth/google'
+    | '/admin/'
+    | '/auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   TosRoute: typeof TosRoute
   TreeRoute: typeof TreeRoute
@@ -113,6 +147,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -127,6 +168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/auth/google': {
       id: '/auth/google'
       path: '/auth/google'
@@ -137,8 +185,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   TosRoute: TosRoute,
   TreeRoute: TreeRoute,
