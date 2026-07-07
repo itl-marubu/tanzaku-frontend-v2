@@ -3,7 +3,10 @@ import {
   type ManageEvent,
   type ManageTanzaku,
   type TanzakuOperation,
+  activateEvent,
+  createEvent,
   createManageTanzaku,
+  deactivateAllEvents,
   editTanzakus,
   getEvents,
   getTanzakus,
@@ -11,6 +14,7 @@ import {
 import { useAdminAuth } from "@/lib/adminAuth";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { EditModal, type TanzakuFormValues } from "./EditModal";
+import { EventSection } from "./EventSection";
 import { StatsCards } from "./StatsCards";
 import { TanzakuTable } from "./TanzakuTable";
 import { downloadTanzakuCsv } from "./csvExport";
@@ -251,6 +255,44 @@ export const AdminDashboard: React.FC = () => {
     );
   };
 
+  // ---- イベント管理 ----
+
+  const handleCreateEvent = async (name: string, description: string) => {
+    if (!credentials) return;
+    try {
+      await createEvent(
+        credentials,
+        description ? { name, description } : { name },
+      );
+      showMessage("success", "イベントを作成しました");
+      await loadData();
+    } catch (error) {
+      handleError(error, "エラー: 作成に失敗しました");
+    }
+  };
+
+  const handleActivateEvent = async (id: string) => {
+    if (!credentials) return;
+    try {
+      await activateEvent(credentials, id);
+      showMessage("success", "イベントを切り替えました");
+      await loadData();
+    } catch (error) {
+      handleError(error, "エラー: 切り替えに失敗しました");
+    }
+  };
+
+  const handleDeactivateAll = async () => {
+    if (!credentials) return;
+    try {
+      await deactivateAllEvents(credentials);
+      showMessage("success", "イベントを無効にしました");
+      await loadData();
+    } catch (error) {
+      handleError(error, "エラー: 無効化に失敗しました");
+    }
+  };
+
   const handleModalSubmit = async (values: TanzakuFormValues) => {
     if (!credentials || !modal) return;
     try {
@@ -308,6 +350,14 @@ export const AdminDashboard: React.FC = () => {
         )}
 
         <StatsCards stats={stats} />
+
+        <EventSection
+          events={allEvents}
+          onCreate={handleCreateEvent}
+          onActivate={handleActivateEvent}
+          onDeactivateAll={handleDeactivateAll}
+          onValidationError={(text) => showMessage("error", text)}
+        />
 
         <div className="mb-8 rounded-lg bg-white p-6 shadow">
           <div className="mb-4 flex items-center gap-2">
