@@ -14,6 +14,9 @@ import {
 } from "@/lib/treeLayout";
 import { useEffect, useRef, useState } from "react";
 
+// 七夕モード限定: 短冊の1枚を特別イラストに差し替える演出（origin/main由来）
+const TANABATA_ITHIEL_IMAGE_SRC = "/tanabata-ithiel.png";
+
 // 旧 t2i.tsx (TanzakuToImage) の移植。配置計算は lib/treeLayout の
 // 純粋関数へ委譲し、背景描画・ポーリングをここで担う。
 export const TreeCanvas: React.FC = () => {
@@ -26,6 +29,7 @@ export const TreeCanvas: React.FC = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [tanzakuArray, setTanzakuArray] = useState<DisplayTanzaku[]>([]);
   const [sakuraPositions, setSakuraPositions] = useState<Position[]>([]);
+  const [ithielCardIndex, setIthielCardIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchTanzaku = async () => {
@@ -54,6 +58,15 @@ export const TreeCanvas: React.FC = () => {
         innerHeight: window.innerHeight,
       }),
     );
+  }, [isSakura, tanzakuArray]);
+
+  useEffect(() => {
+    if (isSakura || tanzakuArray.length === 0) {
+      setIthielCardIndex(null);
+      return;
+    }
+
+    setIthielCardIndex(Math.floor(Math.random() * tanzakuArray.length));
   }, [isSakura, tanzakuArray]);
 
   useEffect(() => {
@@ -137,6 +150,32 @@ export const TreeCanvas: React.FC = () => {
       {canPlaceCards &&
         tanzakuArray.map((tanzaku, index) => {
           const positionIndex = index % positionArray.length;
+          const cardStyle = {
+            position: "absolute" as const,
+            ...(isSakura
+              ? { width: `${SAKURA_CARD_WIDTH_VW}vw`, height: "auto" }
+              : { height: "220px", width: "auto" }),
+            left: positionArray[positionIndex].x,
+            top: positionArray[positionIndex].y,
+          };
+
+          if (!isSakura && index === ithielCardIndex) {
+            return (
+              <img
+                key={`${tanzaku.id}-ithiel`}
+                src={TANABATA_ITHIEL_IMAGE_SRC}
+                alt=""
+                aria-hidden="true"
+                className="animate-yureru"
+                style={{
+                  ...cardStyle,
+                  objectFit: "contain",
+                  pointerEvents: "none",
+                }}
+              />
+            );
+          }
+
           return (
             <TanzakuCanvas
               key={tanzaku.id}
@@ -144,14 +183,7 @@ export const TreeCanvas: React.FC = () => {
               textLine1={tanzaku.textLine1}
               textLine2={tanzaku.textLine2}
               nameLine={tanzaku.userName ?? ""}
-              style={{
-                position: "absolute",
-                ...(isSakura
-                  ? { width: `${SAKURA_CARD_WIDTH_VW}vw`, height: "auto" }
-                  : { height: "220px", width: "auto" }),
-                left: positionArray[positionIndex].x,
-                top: positionArray[positionIndex].y,
-              }}
+              style={cardStyle}
             />
           );
         })}
