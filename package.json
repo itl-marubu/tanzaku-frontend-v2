@@ -15,7 +15,6 @@
     "gen:api": "bash scripts/genApi.sh"
   },
   "dependencies": {
-    "@tabler/icons-react": "^3.33.0",
     "@tanstack/react-router": "^1.170.17",
     "openapi-fetch": "^0.14.0",
     "qrcode": "^1.5.4",
