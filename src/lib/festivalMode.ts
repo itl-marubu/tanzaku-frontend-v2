@@ -1,7 +1,11 @@
-// モードごとの文言・設定定義（環境変数の読み取りは lib/activeMode.ts が担う）
+// モードごとの文言・設定定義（実行時の解決は lib/activeMode.tsx が担う）
 export type FestivalMode = "tanabata" | "sakura";
 
 export const DEFAULT_MODE: FestivalMode = "tanabata";
+
+export function isFestivalMode(value: unknown): value is FestivalMode {
+  return value === "tanabata" || value === "sakura";
+}
 
 export const MODE_CONFIG = {
   tanabata: {

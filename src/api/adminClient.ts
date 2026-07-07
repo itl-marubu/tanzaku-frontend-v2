@@ -157,3 +157,17 @@ export function deactivateAllEvents(
     method: "POST",
   });
 }
+
+export type ManageConfig = {
+  festivalMode: string;
+};
+
+export function updateFestivalMode(
+  credentials: string,
+  festivalMode: string,
+): Promise<{ success: boolean }> {
+  return request(credentials, "/manage/config", {
+    method: "PUT",
+    body: JSON.stringify({ festivalMode } satisfies ManageConfig),
+  });
+}

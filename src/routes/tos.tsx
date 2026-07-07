@@ -1,10 +1,11 @@
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { ACTIVE_MODE } from "@/lib/activeMode";
+import { INITIAL_FESTIVAL_MODE } from "@/lib/activeMode";
 import { MODE_CONFIG } from "@/lib/festivalMode";
 import { createFileRoute } from "@tanstack/react-router";
 
-const { eventName } = MODE_CONFIG[ACTIVE_MODE];
+// head() はモジュール評価時に実行されるため初期値（env解決）を使う
+const { eventName } = MODE_CONFIG[INITIAL_FESTIVAL_MODE];
 
 export const Route = createFileRoute("/tos")({
   head: () => ({

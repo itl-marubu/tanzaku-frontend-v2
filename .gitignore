@@ -47,3 +47,6 @@ styled-system
 styled-system-studio
 # Vite
 dist
+
+# local scratch
+.temp/

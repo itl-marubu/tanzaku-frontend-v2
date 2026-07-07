@@ -59,3 +59,17 @@ export const getRecentTanzaku = async (limit = DEFAULT_RECENT_LIMIT) => {
 
   return splitContentForDisplay(response.data);
 };
+
+// GET /config は生成型に未収録（バックエンドは並行実装中の凍結仕様）のため
+// 型を手書きする。認証不要の公開エンドポイント。
+export type PublicConfig = {
+  festivalMode: string;
+};
+
+export const getFestivalConfig = async (): Promise<PublicConfig | null> => {
+  const response = await fetch(`${import.meta.env.VITE_TANZ_BACKEND}/config`);
+  if (!response.ok) {
+    return null;
+  }
+  return (await response.json()) as PublicConfig;
+};

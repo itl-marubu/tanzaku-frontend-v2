@@ -1,6 +1,6 @@
 import { createTanzaku } from "@/api/client";
 import { TanzakuCanvas } from "@/components/TanzakuCanvas";
-import { ACTIVE_MODE } from "@/lib/activeMode";
+import { useFestivalMode } from "@/lib/activeMode";
 import { MODE_CONFIG } from "@/lib/festivalMode";
 import { sendGAEvent } from "@/lib/ga";
 import {
@@ -19,7 +19,7 @@ type FormData = {
 };
 
 export const Form: React.FC = () => {
-  const mode = ACTIVE_MODE;
+  const { mode } = useFestivalMode();
   const config = MODE_CONFIG[mode];
   const isSakura = mode === "sakura";
 
