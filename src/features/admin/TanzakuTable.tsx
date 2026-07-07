@@ -32,13 +32,9 @@ function statusBadge(tanzaku: ManageTanzaku) {
       </span>
     );
   }
-  return tanzaku.visiblePattern ? (
+  return (
     <span className="rounded-xl bg-[#d4edda] px-2 py-1 text-xs font-semibold text-[#155724]">
-      表示中
-    </span>
-  ) : (
-    <span className="rounded-xl bg-[#f8d7da] px-2 py-1 text-xs font-semibold text-[#721c24]">
-      非表示
+      有効
     </span>
   );
 }
@@ -93,7 +89,7 @@ export const TanzakuTable: React.FC<TanzakuTableProps> = ({
               />
             </th>
           ))}
-          <th className={thClass}>表示状態</th>
+          <th className={thClass}>状態</th>
           <th className={thClass}>
             <SortButton
               label="イベント"

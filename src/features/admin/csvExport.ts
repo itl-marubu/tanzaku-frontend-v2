@@ -8,7 +8,6 @@ const CSV_HEADERS = [
   "内容",
   "ユーザー名",
   "バリデーション結果",
-  "表示パターン",
   "論理削除",
   "作成日時",
 ];
@@ -24,7 +23,6 @@ export function buildTanzakuCsv(list: ManageTanzaku[]): string {
         escapeCsvField(tanzaku.content),
         escapeCsvField(tanzaku.userName),
         tanzaku.validationResult === 0 ? "適切" : "不適切",
-        tanzaku.visiblePattern ? "表示" : "非表示",
         tanzaku.logicalDelete ? "削除済み" : "有効",
         new Date(tanzaku.createdAt).toLocaleString("ja-JP"),
       ].join(","),
