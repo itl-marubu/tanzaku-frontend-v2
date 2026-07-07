@@ -1,12 +1,14 @@
-import { ACTIVE_MODE, IS_SAKURA } from "@/lib/activeMode";
+import { useFestivalMode } from "@/lib/activeMode";
 import { MODE_CONFIG } from "@/lib/festivalMode";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "./Logo";
 import { QrCode } from "./QrCode";
 
 export const MetaInfo: React.FC = () => {
-  const config = MODE_CONFIG[ACTIVE_MODE];
-  const songUrl = IS_SAKURA ? "/song-sakura.webm" : "/song.webm";
+  const { mode } = useFestivalMode();
+  const isSakura = mode === "sakura";
+  const config = MODE_CONFIG[mode];
+  const songUrl = isSakura ? "/song-sakura.webm" : "/song.webm";
 
   const [hasInteracted, setHasInteracted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -63,7 +65,7 @@ export const MetaInfo: React.FC = () => {
         transform: "translateY(2.5vh)",
       }}
     >
-      {IS_SAKURA ? (
+      {isSakura ? (
         <img
           src="/sakura-rogo.svg"
           alt="短冊の会　ロゴ"

@@ -1,6 +1,6 @@
 import { type DisplayTanzaku, getRecentTanzaku } from "@/api/client";
 import { TanzakuCanvas } from "@/components/TanzakuCanvas";
-import { ACTIVE_MODE, IS_SAKURA } from "@/lib/activeMode";
+import { useFestivalMode } from "@/lib/activeMode";
 import {
   FETCH_INTERVAL_MS,
   type Position,
@@ -20,8 +20,8 @@ const TANABATA_ITHIEL_IMAGE_SRC = "/tanabata-ithiel.png";
 // 旧 t2i.tsx (TanzakuToImage) の移植。配置計算は lib/treeLayout の
 // 純粋関数へ委譲し、背景描画・ポーリングをここで担う。
 export const TreeCanvas: React.FC = () => {
-  const mode = ACTIVE_MODE;
-  const isSakura = IS_SAKURA;
+  const { mode, refresh } = useFestivalMode();
+  const isSakura = mode === "sakura";
   const cardLimit = isSakura ? SAKURA_CARD_LIMIT : TANABATA_CARD_LIMIT;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -45,10 +45,16 @@ export const TreeCanvas: React.FC = () => {
       }
     };
 
+    // 短冊の再取得と同じ周期でフェスティバルモード(/config)も再取得し、
+    // 管理画面からの切り替えがリロードなしで反映されるようにする。
     fetchTanzaku();
-    const interval = setInterval(fetchTanzaku, FETCH_INTERVAL_MS);
+    refresh();
+    const interval = setInterval(() => {
+      fetchTanzaku();
+      refresh();
+    }, FETCH_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [cardLimit]);
+  }, [cardLimit, refresh]);
 
   useEffect(() => {
     if (!isSakura || tanzakuArray.length === 0) return;
