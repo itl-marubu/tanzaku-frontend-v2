@@ -43,12 +43,21 @@ const splitContentForDisplay = (
     };
   });
 
-export const getRecentTanzaku = async (limit = DEFAULT_RECENT_LIMIT) => {
+export type RecentTanzakuCursor = {
+  window: number;
+  seed: string;
+};
+
+export const getRecentTanzaku = async (
+  limit = DEFAULT_RECENT_LIMIT,
+  cursor?: RecentTanzakuCursor,
+) => {
   const safeLimit = Math.min(MAX_RECENT_LIMIT, Math.max(1, Math.floor(limit)));
   const response = await client.GET("/tanzaku/client", {
     params: {
       query: {
         limit: safeLimit,
+        ...(cursor ? { window: cursor.window, seed: cursor.seed } : {}),
       },
     },
   });

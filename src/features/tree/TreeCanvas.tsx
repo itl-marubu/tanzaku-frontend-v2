@@ -31,10 +31,19 @@ export const TreeCanvas: React.FC = () => {
   const [sakuraPositions, setSakuraPositions] = useState<Position[]>([]);
   const [ithielCardIndex, setIthielCardIndex] = useState<number | null>(null);
 
+  // クライアント駆動カーソル: seed はマウント時に一度だけ生成（リロード = 新seed
+  // = 即・別バッチ）。window は0起点でフェッチのたびにインクリメントする。
+  // どちらも useRef のためモード切替の effect 再実行を跨いで維持される。
+  const seedRef = useRef(Math.random().toString(36).slice(2, 10));
+  const windowRef = useRef(0);
+
   useEffect(() => {
     const fetchTanzaku = async () => {
       try {
-        const tanzakuData = await getRecentTanzaku(cardLimit);
+        const tanzakuData = await getRecentTanzaku(cardLimit, {
+          window: windowRef.current,
+          seed: seedRef.current,
+        });
         if (!tanzakuData) {
           throw new Error("データの取得に失敗しました");
         }
@@ -50,6 +59,7 @@ export const TreeCanvas: React.FC = () => {
     fetchTanzaku();
     refresh();
     const interval = setInterval(() => {
+      windowRef.current += 1;
       fetchTanzaku();
       refresh();
     }, FETCH_INTERVAL_MS);
