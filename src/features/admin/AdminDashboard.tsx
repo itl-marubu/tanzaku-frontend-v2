@@ -2,11 +2,15 @@ import {
   AdminApiError,
   type ManageEvent,
   type ManageTanzaku,
+  type TanzakuOperation,
+  createManageTanzaku,
+  editTanzakus,
   getEvents,
   getTanzakus,
 } from "@/api/adminClient";
 import { useAdminAuth } from "@/lib/adminAuth";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { EditModal, type TanzakuFormValues } from "./EditModal";
 import { StatsCards } from "./StatsCards";
 import { TanzakuTable } from "./TanzakuTable";
 import { downloadTanzakuCsv } from "./csvExport";
@@ -35,6 +39,14 @@ const primaryBtn =
   "cursor-pointer rounded bg-[#3498db] px-4 py-2 text-sm text-white transition-all hover:opacity-80";
 const warningBtn =
   "cursor-pointer rounded bg-[#f39c12] px-4 py-2 text-sm text-white transition-all hover:opacity-80";
+const dangerBtn =
+  "cursor-pointer rounded bg-[#e74c3c] px-4 py-2 text-sm text-white transition-all hover:opacity-80";
+const smallBtn = "px-2 py-1 text-xs";
+
+type ModalState =
+  | { mode: "create" }
+  | { mode: "edit"; tanzaku: ManageTanzaku }
+  | null;
 
 export const AdminDashboard: React.FC = () => {
   const { credentials, logout } = useAdminAuth();
@@ -47,6 +59,8 @@ export const AdminDashboard: React.FC = () => {
   const [eventFilter, setEventFilter] = useState<EventFilter>("all");
   const [sortColumn, setSortColumn] = useState<SortColumn>("createdAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [modal, setModal] = useState<ModalState>(null);
 
   const showMessage = useCallback(
     (type: "success" | "error" | "info", text: string) => {
@@ -125,6 +139,154 @@ export const AdminDashboard: React.FC = () => {
     );
   };
 
+  // ---- 更新系操作 ----
+
+  const runOperations = useCallback(
+    async (operations: TanzakuOperation[], successText: string) => {
+      if (!credentials) return;
+      try {
+        await editTanzakus(credentials, operations);
+        showMessage("success", successText);
+        setSelectedIds(new Set());
+        await loadData();
+      } catch (error) {
+        handleError(error, "エラー: 更新に失敗しました");
+      }
+    },
+    [credentials, handleError, loadData, showMessage],
+  );
+
+  const handleDelete = (id: string) => {
+    if (!confirm("この短冊を削除しますか？")) return;
+    runOperations([{ id, operation: "delete" }], "削除しました");
+  };
+
+  const handleHardDelete = (id: string) => {
+    if (!confirm("この短冊を完全削除しますか？この操作は元に戻せません。"))
+      return;
+    runOperations([{ id, operation: "hardDelete" }], "完全削除しました");
+  };
+
+  const handleToggleValidation = (tanzaku: ManageTanzaku) => {
+    runOperations(
+      [
+        {
+          id: tanzaku.id,
+          operation: "update",
+          validationResult: tanzaku.validationResult === 0 ? 1 : 0,
+        },
+      ],
+      "バリデーション結果を更新しました",
+    );
+  };
+
+  const selectedList = [...selectedIds];
+
+  const handleBulkDelete = () => {
+    if (selectedList.length === 0) return;
+    if (!confirm(`${selectedList.length}件の短冊を削除しますか？`)) return;
+    runOperations(
+      selectedList.map((id) => ({ id, operation: "delete" as const })),
+      `${selectedList.length}件を削除しました`,
+    );
+  };
+
+  const handleBulkHardDelete = () => {
+    if (selectedList.length === 0) return;
+    if (
+      !confirm(
+        `${selectedList.length}件の短冊を完全削除しますか？この操作は元に戻せません。`,
+      )
+    )
+      return;
+    runOperations(
+      selectedList.map((id) => ({ id, operation: "hardDelete" as const })),
+      `${selectedList.length}件を完全削除しました`,
+    );
+  };
+
+  const handleBulkMarkValid = () => {
+    if (selectedList.length === 0) return;
+    runOperations(
+      selectedList.map((id) => ({
+        id,
+        operation: "update" as const,
+        validationResult: 0,
+      })),
+      `${selectedList.length}件を適切に設定しました`,
+    );
+  };
+
+  const handleBulkMarkInvalid = () => {
+    if (selectedList.length === 0) return;
+    runOperations(
+      selectedList.map((id) => ({
+        id,
+        operation: "update" as const,
+        validationResult: 1,
+      })),
+      `${selectedList.length}件を不適切に設定しました`,
+    );
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const allSelected =
+    sortedTanzaku.length > 0 &&
+    sortedTanzaku.every((t) => selectedIds.has(t.id));
+
+  const handleToggleSelectAll = () => {
+    setSelectedIds(
+      allSelected ? new Set() : new Set(sortedTanzaku.map((t) => t.id)),
+    );
+  };
+
+  const handleModalSubmit = async (values: TanzakuFormValues) => {
+    if (!credentials || !modal) return;
+    try {
+      if (modal.mode === "edit") {
+        await editTanzakus(credentials, [
+          {
+            id: modal.tanzaku.id,
+            operation: "update",
+            content: values.content,
+            userName: values.userName,
+            validationResult: values.validationResult,
+            eventId: values.eventId,
+          },
+        ]);
+        showMessage("success", "短冊を更新しました");
+      } else {
+        await createManageTanzaku(credentials, {
+          content: values.content,
+          userName: values.userName,
+          validationResult: values.validationResult,
+          eventId: values.eventId,
+        });
+        showMessage("success", "新しい短冊を作成しました");
+      }
+      setModal(null);
+      await loadData();
+    } catch (error) {
+      handleError(
+        error,
+        modal.mode === "edit"
+          ? "エラー: 更新に失敗しました"
+          : "エラー: 作成に失敗しました",
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-[#333]">
       <div className="flex items-center justify-between bg-[#2c3e50] px-8 py-4 text-white shadow">
@@ -172,6 +334,13 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" onClick={loadData} className={primaryBtn}>
               データ更新
+            </button>
+            <button
+              type="button"
+              onClick={() => setModal({ mode: "create" })}
+              className={primaryBtn}
+            >
+              新規作成
             </button>
             <button
               type="button"
@@ -226,14 +395,120 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="overflow-hidden rounded-lg bg-white shadow">
+          {selectedIds.size > 0 && (
+            <div className="flex flex-wrap items-center gap-2 border-b border-[#bdc3c7] bg-[#ecf0f1] p-4">
+              <label className="mr-4 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={handleToggleSelectAll}
+                />
+                全選択
+              </label>
+              <button
+                type="button"
+                onClick={handleBulkDelete}
+                className={dangerBtn}
+              >
+                選択項目を削除
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkHardDelete}
+                className={dangerBtn}
+              >
+                選択項目を完全削除
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkMarkValid}
+                className={primaryBtn}
+              >
+                選択項目を適切にする
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkMarkInvalid}
+                className={warningBtn}
+              >
+                選択項目を不適切にする
+              </button>
+            </div>
+          )}
           <TanzakuTable
             tanzakus={sortedTanzaku}
             sortColumn={sortColumn}
             sortDirection={sortDirection}
             onSortBy={handleSortBy}
+            selectedIds={selectedIds}
+            onToggleSelect={handleToggleSelect}
+            renderActions={(tanzaku) => (
+              <div className="flex flex-wrap gap-1">
+                <button
+                  type="button"
+                  onClick={() => setModal({ mode: "edit", tanzaku })}
+                  className={`${primaryBtn} ${smallBtn}`}
+                >
+                  編集
+                </button>
+                {!tanzaku.logicalDelete && (
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(tanzaku.id)}
+                    className={`${dangerBtn} ${smallBtn}`}
+                  >
+                    削除
+                  </button>
+                )}
+                {tanzaku.logicalDelete && (
+                  <button
+                    type="button"
+                    onClick={() => handleHardDelete(tanzaku.id)}
+                    className={`${dangerBtn} ${smallBtn}`}
+                  >
+                    完全削除
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleToggleValidation(tanzaku)}
+                  className={`${primaryBtn} ${smallBtn}`}
+                >
+                  {tanzaku.validationResult === 0
+                    ? "不適切にする"
+                    : "適切にする"}
+                </button>
+              </div>
+            )}
           />
         </div>
       </div>
+
+      {modal && (
+        <EditModal
+          title={modal.mode === "edit" ? "短冊を編集" : "新規短冊作成"}
+          submitLabel={modal.mode === "edit" ? "更新" : "作成"}
+          initial={
+            modal.mode === "edit"
+              ? {
+                  content: modal.tanzaku.content,
+                  userName: modal.tanzaku.userName,
+                  validationResult: modal.tanzaku.validationResult,
+                  eventId: modal.tanzaku.eventId,
+                }
+              : {
+                  content: "",
+                  userName: "",
+                  validationResult: 0,
+                  eventId: null,
+                }
+          }
+          events={allEvents}
+          onClose={() => setModal(null)}
+          onSubmit={handleModalSubmit}
+          onValidationError={(text) => showMessage("error", text)}
+        />
+      )}
     </div>
   );
 };
