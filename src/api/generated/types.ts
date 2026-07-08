@@ -58,8 +58,18 @@ export interface paths {
         /**
          * クライアント表示用のtanzakuを取得
          * @description アクティブイベント(なければレガシー)スコープの表示可能なtanzakuを
-         *     limit件返します。返した行は非表示にマークされ、表示可能な行が尽きると
-         *     リセットされるローテーション方式です。
+         *     limit件返す、DB書き込みを一切行わないステートレスなローテーションです。
+         *
+         *     - 新着セグメント: 直近60秒以内に作成された短冊を新しい順に最大 limit-2 件。
+         *       window/seed に依存しないため、リロード連打でも新着は必ず先頭に表示されます。
+         *     - 巡回セグメント: 残り枠を、新着以外の表示可能な短冊の安定順序上の窓
+         *       (window と seed から決定的に算出するオフセット)で充填します。
+         *       末尾に達すると先頭へラップします。
+         *     - window/seed を省略するとサーバーの壁時計から window を導出します
+         *       (カーソル未対応のクライアント向けデフォルト挙動)。
+         *
+         *     同一の limit/window/seed を指定した呼び出しは(データ変化がない限り)
+         *     常に同一の結果を返します。
          */
         get: operations["getRecentTanzaku"];
         put?: never;
@@ -70,60 +80,20 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/signup": {
+    "/config": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
         /**
-         * 新規ユーザー登録
-         * @description 新しいユーザーを登録します
+         * グローバル設定を取得
+         * @description 認証不要でフェスティバルモードなどのグローバル設定を取得します
          */
-        post: operations["signup"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
+        get: operations["getConfig"];
         put?: never;
-        /**
-         * ログイン
-         * @description 既存ユーザーとしてログインします
-         */
-        post: operations["login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * トークンのリフレッシュ
-         * @description アクセストークンをリフレッシュします
-         */
-        post: operations["refreshToken"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -232,6 +202,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/manage/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 管理者用:フェスティバルモードの更新
+         * @description グローバル設定(festivalMode)を実行時に切り替えます
+         */
+        put: operations["manageUpdateConfig"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/manage/events/{id}/activate": {
         parameters: {
             query?: never;
@@ -260,8 +250,6 @@ export interface components {
             id: string;
             content: string;
             userName: string;
-            /** @description ウォール表示ローテーション用フラグ */
-            visiblePattern: boolean;
             /**
              * @description 0=適切(表示)、1=不適切(非表示)
              * @enum {number}
@@ -292,6 +280,10 @@ export interface components {
                 tanzakus: number;
             };
         };
+        Config: {
+            /** @description 現在のフェスティバルモード。未設定時のデフォルトは "tanabata" */
+            festivalMode: string;
+        };
         TanzakuEditOperation: {
             id: string;
             /** @enum {string} */
@@ -310,10 +302,6 @@ export interface components {
             validationResult?: 0 | 1;
             /** @description 未指定=変更しない、null=レガシーへ移動 */
             eventId?: string | null;
-        };
-        AuthTokens: {
-            accessToken?: string;
-            refreshToken?: string;
         };
         Success: {
             success: boolean;
@@ -423,7 +411,12 @@ export interface operations {
     getRecentTanzaku: {
         parameters: {
             query?: {
+                /** @description 取得件数。数値化できない値や未指定は10として扱います(1〜30にclamp)。 */
                 limit?: number;
+                /** @description 巡回セグメントの窓インデックス。呼び出し毎にインクリメントすることで バッチが入れ替わります。省略・不正値はサーバー壁時計から導出します。 */
+                window?: number;
+                /** @description クライアント固有の乱数シード(最大64文字)。変更すると巡回セグメントの 位相がずれ、別バッチが表示されます。省略・不正値は空文字列相当。 */
+                seed?: string;
             };
             header?: never;
             path?: never;
@@ -442,111 +435,22 @@ export interface operations {
             };
         };
     };
-    signup: {
+    getConfig: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /** Format: email */
-                    email: string;
-                    password: string;
-                };
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description 認証トークン */
+            /** @description 現在の設定 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AuthTokens"];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /** Format: email */
-                    email: string;
-                    password: string;
-                };
-            };
-        };
-        responses: {
-            /** @description 認証トークン */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthTokens"];
-                };
-            };
-            /** @description エラー */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    refreshToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    refreshToken: string;
-                };
-            };
-        };
-        responses: {
-            /** @description 新しい認証トークン */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthTokens"];
-                };
-            };
-            /** @description 無効なリフレッシュトークン */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
+                    "application/json": components["schemas"]["Config"];
                 };
             };
         };
@@ -767,6 +671,48 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Success"];
                 };
+            };
+            /** @description エラー */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    manageUpdateConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    festivalMode: string;
+                };
+            };
+        };
+        responses: {
+            /** @description 更新成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Success"];
+                };
+            };
+            /** @description バリデーションエラー */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description エラー */
             500: {

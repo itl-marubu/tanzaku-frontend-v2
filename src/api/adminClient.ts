@@ -13,7 +13,6 @@ export type ManageTanzaku = {
   id: string;
   content: string;
   userName: string;
-  visiblePattern: boolean;
   validationResult: number;
   logicalDelete: boolean;
   createdAt: string;

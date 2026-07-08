@@ -17,6 +17,17 @@ import { useEffect, useRef, useState } from "react";
 // 七夕モード限定: 短冊の1枚を特別イラストに差し替える演出（origin/main由来）
 const TANABATA_ITHIEL_IMAGE_SRC = "/tanabata-ithiel.png";
 
+// リクエストIDガード: fetch開始時に採番したIDが、応答適用時点での「最新の
+// リクエストID」と一致する場合のみ採用する。60秒ポーリングで遅延した古い
+// レスポンス(窓k)が新しいレスポンス(窓k+1)より後に解決しても、この判定で
+// 古いバッチによる上書き（壁面表示の巻き戻り）を防げる。
+export function isLatestRequest(
+  requestId: number,
+  latestRequestId: number,
+): boolean {
+  return requestId === latestRequestId;
+}
+
 // 旧 t2i.tsx (TanzakuToImage) の移植。配置計算は lib/treeLayout の
 // 純粋関数へ委譲し、背景描画・ポーリングをここで担う。
 export const TreeCanvas: React.FC = () => {
@@ -31,15 +42,30 @@ export const TreeCanvas: React.FC = () => {
   const [sakuraPositions, setSakuraPositions] = useState<Position[]>([]);
   const [ithielCardIndex, setIthielCardIndex] = useState<number | null>(null);
 
+  // クライアント駆動カーソル: seed はマウント時に一度だけ生成（リロード = 新seed
+  // = 即・別バッチ）。window は0起点でフェッチのたびにインクリメントする。
+  // どちらも useRef のためモード切替の effect 再実行を跨いで維持される。
+  const seedRef = useRef(Math.random().toString(36).slice(2, 10));
+  const windowRef = useRef(0);
+  // 単調増加のリクエストID。fetch開始時に採番し、応答適用直前に
+  // isLatestRequest で「今も最新か」を確認する（古ければ破棄）。
+  const latestRequestRef = useRef(0);
+
   useEffect(() => {
     const fetchTanzaku = async () => {
+      const requestId = ++latestRequestRef.current;
       try {
-        const tanzakuData = await getRecentTanzaku(cardLimit);
+        const tanzakuData = await getRecentTanzaku(cardLimit, {
+          window: windowRef.current,
+          seed: seedRef.current,
+        });
         if (!tanzakuData) {
           throw new Error("データの取得に失敗しました");
         }
+        if (!isLatestRequest(requestId, latestRequestRef.current)) return;
         setTanzakuArray(tanzakuData);
       } catch (error) {
+        if (!isLatestRequest(requestId, latestRequestRef.current)) return;
         console.error("短冊データの取得に失敗しました:", error);
         alert("問題が発生しました。\n エラーコード: geterr2");
       }
@@ -50,10 +76,18 @@ export const TreeCanvas: React.FC = () => {
     fetchTanzaku();
     refresh();
     const interval = setInterval(() => {
+      windowRef.current += 1;
       fetchTanzaku();
       refresh();
     }, FETCH_INTERVAL_MS);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      // 依存変更(モード切替)やアンマウントで effect が終了する際、進行中の
+      // fetch が残っていれば ID を進めて「最新ではない」ものとして無効化する。
+      // これにより isLatestRequest ガード1つで巻き戻り・クリーンアップ後の
+      // setState の両方を防げる。
+      latestRequestRef.current += 1;
+    };
   }, [cardLimit, refresh]);
 
   useEffect(() => {
