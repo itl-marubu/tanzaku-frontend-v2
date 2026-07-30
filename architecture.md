@@ -299,7 +299,7 @@ sequenceDiagram
     T->>API: getRecentTanzaku(limit, window/seed カーソル, 30秒タイムアウト)
     Note right of API: 七夕=10件 / 桜=14件<br/>1..30にクランプ
     API->>S: GET /tanzaku/client (limit, window, seed)
-    S-->>API: Tanzaku[]（書き込みなし・決定的）
+    S-->>API: Tanzaku[]（DB書き込みなし）
     API->>API: splitTanzakuText で2行に分割
     API-->>T: DisplayTanzaku[]
     T->>T: リクエストIDが最新なら採用（古い応答は破棄）
@@ -333,7 +333,9 @@ sequenceDiagram
 
 ### ローテーションの契約
 
-`GET /tanzaku/client` はDBへの書き込みを一切行わない決定的な計算です。同じ `limit`/`window`/`seed` の呼び出しは（データが変わらない限り）常に同じ結果を返します。
+`GET /tanzaku/client` はDBへの書き込みを一切行わない計算です。巡回セグメントの窓位置は `window`/`seed` だけで決まるため、同じ `limit`/`window`/`seed` の呼び出しは（データが変わらない限り）同じ窓を読みます。
+
+ただし**時刻に依存しない冪等ではありません**。新着セグメントの60秒窓はサーバーの現在時刻から毎回計算し直すため、データが変わらなくても時間経過だけで、新着だった短冊が新着枠から外れて巡回セグメントの母集団へ移り、レスポンスは変わります。
 
 - **新着セグメント**: 直近60秒の投稿を新しい順に最大 `limit - 2` 件。`window`/`seed` に依存しないため、リロードを繰り返しても同じ新着が先頭に出ます。60秒以内の投稿がこの枠を超えた場合、溢れた分（古い方）は新着枠から外れて巡回セグメント側に回ります（直近60秒の全件が即座に出る保証ではありません）。
 - **巡回セグメント**: 残り枠を、新着以外の安定順序（`createdAt ASC, id ASC`）上の窓で充填します。窓の位置は `offset = (window × 残り枠数 + fnv1a(seed)) mod プール件数` で決まり、末尾に達すると先頭へラップします。
