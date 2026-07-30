@@ -24,6 +24,9 @@ export const SAKURA_CARD_ASPECT_RATIO = 225 / 375;
 export const SAKURA_CARD_LIMIT = 14;
 export const TANABATA_CARD_LIMIT = 10;
 export const FETCH_INTERVAL_MS = 60_000;
+// 短冊取得のタイムアウト。ポーリング間隔より短くして、応答が返らない fetch が
+// 同時実行ゲートを占有し続け、以降のポーリングを止めてしまうのを防ぐ。
+export const FETCH_TIMEOUT_MS = 30_000;
 export const SAKURA_FALLBACK_BG_WIDTH = 1200;
 export const SAKURA_FALLBACK_BG_HEIGHT = 1000;
 const SAKURA_POSITION_JITTER_RATIO = 0.7;

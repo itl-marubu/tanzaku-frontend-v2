@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isLatestRequest } from "./TreeCanvas";
+import { isAbortError, isLatestRequest } from "./TreeCanvas";
 
 describe("isLatestRequest", () => {
   it("採番したIDが依然として最新なら採用する", () => {
@@ -15,5 +15,22 @@ describe("isLatestRequest", () => {
     // アンマウント/依存変更のクリーンアップで latestRequestId が
     // 進められた場合、進行中だったfetchの応答は最新扱いされない
     expect(isLatestRequest(3, 4)).toBe(false);
+  });
+});
+
+describe("isAbortError", () => {
+  it("タイムアウト(TimeoutError)は中断扱いにする", () => {
+    expect(isAbortError(new DOMException("timed out", "TimeoutError"))).toBe(
+      true,
+    );
+  });
+
+  it("中断(AbortError)は中断扱いにする", () => {
+    expect(isAbortError(new DOMException("aborted", "AbortError"))).toBe(true);
+  });
+
+  it("通常のエラーは中断扱いにしない（alertで運営に気付かせる）", () => {
+    expect(isAbortError(new Error("データの取得に失敗しました"))).toBe(false);
+    expect(isAbortError(new DOMException("boom", "SyntaxError"))).toBe(false);
   });
 });

@@ -51,6 +51,7 @@ export type RecentTanzakuCursor = {
 export const getRecentTanzaku = async (
   limit = DEFAULT_RECENT_LIMIT,
   cursor?: RecentTanzakuCursor,
+  signal?: AbortSignal,
 ) => {
   const safeLimit = Math.min(MAX_RECENT_LIMIT, Math.max(1, Math.floor(limit)));
   const response = await client.GET("/tanzaku/client", {
@@ -60,6 +61,7 @@ export const getRecentTanzaku = async (
         ...(cursor ? { window: cursor.window, seed: cursor.seed } : {}),
       },
     },
+    signal,
   });
 
   if (!response.data) {

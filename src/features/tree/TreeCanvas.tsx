@@ -1,8 +1,10 @@
 import { type DisplayTanzaku, getRecentTanzaku } from "@/api/client";
 import { TanzakuCanvas } from "@/components/TanzakuCanvas";
 import { useFestivalMode } from "@/lib/activeMode";
+import { createSingleFlight } from "@/lib/singleFlight";
 import {
   FETCH_INTERVAL_MS,
+  FETCH_TIMEOUT_MS,
   type Position,
   SAKURA_CARD_LIMIT,
   SAKURA_CARD_WIDTH_VW,
@@ -26,6 +28,16 @@ export function isLatestRequest(
   latestRequestId: number,
 ): boolean {
   return requestId === latestRequestId;
+}
+
+// タイムアウト(AbortSignal.timeout)と中断(abort)による失敗の判定。
+// これらは次のポーリングで回復するため、壁面表示を止める alert は出さない
+// （alert はユーザーが閉じるまで画面全体をブロックしてしまう）。
+export function isAbortError(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    (error.name === "TimeoutError" || error.name === "AbortError")
+  );
 }
 
 // 旧 t2i.tsx (TanzakuToImage) の移植。配置計算は lib/treeLayout の
@@ -52,13 +64,19 @@ export const TreeCanvas: React.FC = () => {
   const latestRequestRef = useRef(0);
 
   useEffect(() => {
+    // 同時実行ゲートは effect ごとに作る。モード切替で effect が貼り直された
+    // とき、旧ループの進行中fetchが新ループの初回取得を見送らせないため
+    // （旧fetchの応答は isLatestRequest 側で無効化される）。
+    const runExclusive = createSingleFlight();
+
     const fetchTanzaku = async () => {
       const requestId = ++latestRequestRef.current;
       try {
-        const tanzakuData = await getRecentTanzaku(cardLimit, {
-          window: windowRef.current,
-          seed: seedRef.current,
-        });
+        const tanzakuData = await getRecentTanzaku(
+          cardLimit,
+          { window: windowRef.current, seed: seedRef.current },
+          AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        );
         if (!tanzakuData) {
           throw new Error("データの取得に失敗しました");
         }
@@ -67,18 +85,25 @@ export const TreeCanvas: React.FC = () => {
       } catch (error) {
         if (!isLatestRequest(requestId, latestRequestRef.current)) return;
         console.error("短冊データの取得に失敗しました:", error);
-        alert("問題が発生しました。\n エラーコード: geterr2");
+        if (!isAbortError(error)) {
+          alert("問題が発生しました。\n エラーコード: geterr2");
+        }
       }
     };
 
     // 短冊の再取得と同じ周期でフェスティバルモード(/config)も再取得し、
     // 管理画面からの切り替えがリロードなしで反映されるようにする。
-    fetchTanzaku();
+    runExclusive(fetchTanzaku);
     refresh();
     const interval = setInterval(() => {
-      windowRef.current += 1;
-      fetchTanzaku();
+      // /config の追従は短冊取得の成否と独立させたいのでゲートの外で呼ぶ。
       refresh();
+      // 前回の取得が未完了ならこの回は見送る（窓も進めない）。取得を重ねると
+      // レイテンシが間隔を超え続けたときに全応答が破棄され続けてしまう。
+      runExclusive(async () => {
+        windowRef.current += 1;
+        await fetchTanzaku();
+      });
     }, FETCH_INTERVAL_MS);
     return () => {
       clearInterval(interval);
