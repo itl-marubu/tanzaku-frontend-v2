@@ -7,7 +7,7 @@ Vite + React + TanStack Router で構築したSPAで、Cloudflare Workers の静
 ## プロダクト概要
 
 - **カスタムドメイン**: `tanzaku.mizphses.com`
-- **バックエンド**: [itl-marubu/tanzakuv2](https://github.com/itl-marubu/tanzakuv2)（Hono + Prisma + Cloudflare D1）。本リポジトリはフロントエンドのみを扱います。
+- **バックエンド**: [itl-marubu/tanzakuv2](https://github.com/itl-marubu/tanzakuv2)（Hono + Drizzle + Zod / Cloudflare D1）。本リポジトリはフロントエンドのみを扱います。
 - **対象ユーザー**
   - イベント来場者（学生・教職員・一般参加者）
   - 会場設営・企画担当者（スクリーン掲示・モデレーションを行う運営側）
@@ -48,7 +48,9 @@ Vite + React + TanStack Router で構築したSPAで、Cloudflare Workers の静
 - **掲示ビュー（`/tree`）**
   - 背景（笹／桜）をcanvasに描画し、その上にカードを配置します。
   - 七夕モードは固定座標10枚、桜モードはビューポートに応じたセル分割＋幹回避＋最遠セル貪欲選択で14枚を配置します（`src/lib/treeLayout.ts`）。
-  - 60秒ごとに `GET /tanzaku/client` を再取得して表示を入れ替えます。
+  - 60秒ごとに `GET /tanzaku/client` を再取得して表示を入れ替えます。どのバッチを出すかは**クライアントが持つカーソル**（マウント時に生成する `seed` と、取得のたびに進める `window`）で決まります。サーバー側は書き込みを行わない決定的計算なので、**リロード＝新しい seed ＝即座に別バッチ**になります（会場で「次を出す」操作がリロードで効く）。
+  - 直近60秒の投稿は `window`/`seed` によらず先頭に入ります（枠は最大 `limit - 2` 件。これを超える投稿が集中した分は巡回側に回ります）。
+  - ポーリングは同時に1本までに制限し、前回の取得が終わっていない回は見送ります（`src/lib/singleFlight.ts`）。取得には30秒のタイムアウトを設けており、中断・タイムアウトはアラートを出さずに次の周期で回復します。
   - 七夕モードでは1枚をランダムに特別イラスト（`/tanabata-ithiel.png`）へ差し替える演出があります。
   - 右ペインにロゴ・案内文・投稿用QRコードを表示し、初回クリック／タップ後にBGMをループ再生します。
   - `robots: noindex, nofollow` を指定しています。
@@ -84,14 +86,14 @@ TanStack Router のファイルベースルーティング（`src/routes/`）で
 - **TanStack Router 1.x** — ファイルベースルーティング + 自動コード分割（`@tanstack/router-plugin/vite`）
 - **Tailwind CSS 4** — `@tailwindcss/vite` プラグイン経由。スタイルは基本的にユーティリティクラスで記述し、共通定義とアニメーションのみ `src/styles/global.css` に置いています。
 - **TypeScript 5.8** — `strict` 有効
-- **openapi-fetch / openapi-typescript** — 公開API（`/tanzaku` 系）は生成型で型安全に呼び出します。バックエンドで並行実装中のエンドポイント（`/config`・`/manage/*`）は生成型に未収録のため、`src/api/adminClient.ts` などで手書き型を使用しています。
+- **openapi-fetch / openapi-typescript** — `/tanzaku` 系は生成型で型安全に呼び出します。`/config` と `/manage/*` も OpenAPI v2.0.0 に収録済みですが、コード上は手書き型のままです（`/config` は素の `fetch`、`/manage/*` は Basic認証ヘッダーを毎リクエスト付与する薄いラッパー）。
 - **qrcode** — `/tree` の投稿用QRコード生成
 - **Canvas 2D API** — カード描画（`src/lib/canvasDraw.ts`）と桜の花びらパーティクル（`src/lib/particles.ts`）
 
 ### 開発ツール
 
 - **Biome 1.9** — リンター / フォーマッター。`src/routeTree.gen.ts` と `src/api/generated` は対象外です。
-- **Vitest 4** — 純粋ロジック（配置計算・テキスト分割・パーティクル・モード解決・管理画面フィルタ）のユニットテスト。`environment: node`。
+- **Vitest 4** — 純粋ロジック（配置計算・テキスト分割・パーティクル・モード解決・管理画面フィルタ・ポーリングの単発化ゲート・応答の採否判定）のユニットテスト。`environment: node`。
 
 ### デプロイ
 
@@ -146,6 +148,7 @@ src/
 │   ├── canvasDraw.ts        # カード描画（純粋関数）
 │   ├── treeLayout.ts        # 掲示位置の計算（純粋関数）
 │   ├── particles.ts         # 花びらパーティクル（純粋関数）
+│   ├── singleFlight.ts      # ポーリングの同時実行を1本に制限するゲート
 │   ├── tanzakuText.ts       # 文字数制限・行分割
 │   └── ga.ts                # gtagラッパー
 └── styles/global.css        # Tailwindのimportと共通アニメーション
@@ -219,13 +222,15 @@ Pull Request と `main` への push で、`lint` / `typecheck` / `format` / `tes
 
 公開APIは `openapi-fetch` を通じて型安全に呼び出します（`src/api/client.ts`）。管理APIはBasic認証ヘッダーを毎リクエスト手動付与する薄いfetchラッパーです（`src/api/adminClient.ts`）。
 
+掲示ビューの取得は副作用を持ちません。同じ `limit`/`window`/`seed` を指定した呼び出しは（データが変わらない限り）常に同じ結果を返すため、動作確認のために `curl` で叩いても会場の表示が進んでしまうことはありません。
+
 ### フロントエンドが利用するエンドポイント
 
 | エンドポイント | 用途 |
 | --- | --- |
 | `POST /tanzaku` | 投稿の作成 |
 | `GET /tanzaku` | 投稿一覧の取得 |
-| `GET /tanzaku/client?limit=` | 掲示ビュー用の取得（最大30件、既定10件） |
+| `GET /tanzaku/client?limit=&window=&seed=` | 掲示ビュー用の取得（最大30件、既定10件）。`window`/`seed` は表示バッチを決めるクライアント駆動カーソルで、省略時はサーバー壁時計から導出されます |
 | `GET /config` | 現在のフェスティバルモード取得（認証不要） |
 | `GET /manage/session` | 管理者資格情報の疎通確認（未デプロイ環境では `/manage/tanzakus` で代替確認） |
 | `GET /manage/tanzakus` | 全投稿の取得 |
