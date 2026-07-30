@@ -1,6 +1,8 @@
 // 管理API (/manage/*) クライアント。Basic認証ヘッダーを毎リクエスト
 // 手動付与する（CORS origin:"*" のため credentials は omit のまま）。
-// 型はバックエンドの凍結仕様に基づく手書き定義。
+// /manage/* は OpenAPI v2.0.0 で生成型にも収録済みだが、認証ヘッダーの付与と
+// 401 の扱いを1か所に閉じ込めるため、生成クライアントではなく薄い fetch
+// ラッパー + 手書き型を維持している。
 
 const baseUrl = import.meta.env.VITE_TANZ_BACKEND;
 
@@ -87,8 +89,9 @@ async function request<T>(
   return (await response.json()) as T;
 }
 
-// 資格情報の疎通確認。/manage/session が未デプロイの旧バックエンドでは
-// 404 になるため、その場合のみ /manage/tanzakus で代替確認する。
+// 資格情報の疎通確認。/manage/session は本番バックエンドにデプロイ済みなので
+// 通常はこの1本で完結する。404 フォールバックは、当該エンドポイントを持たない
+// 旧バックエンドへ向けた場合の保険として残している。
 export async function checkSession(credentials: string): Promise<boolean> {
   try {
     await request<{ ok: boolean }>(credentials, "/manage/session");
