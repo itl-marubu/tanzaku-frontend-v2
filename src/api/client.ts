@@ -71,8 +71,10 @@ export const getRecentTanzaku = async (
   return splitContentForDisplay(response.data);
 };
 
-// GET /config は生成型に未収録（バックエンドは並行実装中の凍結仕様）のため
-// 型を手書きする。認証不要の公開エンドポイント。
+// 認証不要の公開エンドポイント。GET /config は OpenAPI v2.0.0 で生成型にも
+// 収録済みだが、ここでは「取得に失敗したら null を返して現在のモードを維持する」
+// 取り回しのため素の fetch + 手書き型のままにしている。生成型へ寄せる場合は
+// client.GET("/config") の response.data を見る形へ置き換えられる。
 export type PublicConfig = {
   festivalMode: string;
 };
