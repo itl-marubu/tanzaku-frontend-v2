@@ -12,10 +12,18 @@ import {
   getTanzakus,
 } from "@/api/adminClient";
 import { useAdminAuth } from "@/lib/adminAuth";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { EditModal, type TanzakuFormValues } from "./EditModal";
 import { EventSection } from "./EventSection";
 import { FestivalModeSection } from "./FestivalModeSection";
+import { Pagination } from "./Pagination";
 import { StatsCards } from "./StatsCards";
 import { TanzakuTable } from "./TanzakuTable";
 import { downloadTanzakuCsv } from "./csvExport";
@@ -24,8 +32,11 @@ import {
   type SortColumn,
   type SortDirection,
   type StatusFilter,
+  clampPage,
   computeStats,
   filterTanzakus,
+  getTotalPages,
+  paginateTanzakus,
   sortTanzakus,
 } from "./tanzakuFilters";
 
@@ -48,6 +59,8 @@ const dangerBtn =
   "cursor-pointer rounded bg-[#e74c3c] px-4 py-2 text-sm text-white transition-all hover:opacity-80";
 const smallBtn = "px-2 py-1 text-xs";
 
+const PAGE_SIZE = 50;
+
 type ModalState =
   | { mode: "create" }
   | { mode: "edit"; tanzaku: ManageTanzaku }
@@ -58,22 +71,42 @@ export const AdminDashboard: React.FC = () => {
   const [allTanzaku, setAllTanzaku] = useState<ManageTanzaku[]>([]);
   const [allEvents, setAllEvents] = useState<ManageEvent[]>([]);
   const [message, setMessage] = useState<AdminMessage>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const deferredSearchTerm = useDeferredValue(searchTerm);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [eventFilter, setEventFilter] = useState<EventFilter>("all");
   const [sortColumn, setSortColumn] = useState<SortColumn>("createdAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [modal, setModal] = useState<ModalState>(null);
+  const [page, setPage] = useState(1);
+
+  const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isLoadingRef = useRef(false);
 
   const showMessage = useCallback(
     (type: "success" | "error" | "info", text: string) => {
+      if (messageTimerRef.current) {
+        clearTimeout(messageTimerRef.current);
+      }
       setMessage({ type, text });
-      setTimeout(() => setMessage(null), 3000);
+      messageTimerRef.current = setTimeout(() => {
+        setMessage(null);
+        messageTimerRef.current = null;
+      }, 3000);
     },
     [],
   );
+
+  useEffect(() => {
+    return () => {
+      if (messageTimerRef.current) {
+        clearTimeout(messageTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleError = useCallback(
     (error: unknown, fallback: string) => {
@@ -90,8 +123,10 @@ export const AdminDashboard: React.FC = () => {
 
   const loadData = useCallback(async () => {
     if (!credentials) return;
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
+    setIsLoading(true);
     try {
-      showMessage("info", "データを読み込み中...");
       const [tanzakus, events] = await Promise.all([
         getTanzakus(credentials),
         getEvents(credentials),
@@ -101,6 +136,9 @@ export const AdminDashboard: React.FC = () => {
       showMessage("success", "データを更新しました");
     } catch (error) {
       handleError(error, "エラー: データの取得に失敗しました");
+    } finally {
+      isLoadingRef.current = false;
+      setIsLoading(false);
     }
   }, [credentials, handleError, showMessage]);
 
@@ -109,8 +147,9 @@ export const AdminDashboard: React.FC = () => {
   }, [loadData]);
 
   const filteredTanzaku = useMemo(
-    () => filterTanzakus(allTanzaku, statusFilter, eventFilter, searchTerm),
-    [allTanzaku, statusFilter, eventFilter, searchTerm],
+    () =>
+      filterTanzakus(allTanzaku, statusFilter, eventFilter, deferredSearchTerm),
+    [allTanzaku, statusFilter, eventFilter, deferredSearchTerm],
   );
 
   const sortedTanzaku = useMemo(
@@ -123,14 +162,29 @@ export const AdminDashboard: React.FC = () => {
     [allTanzaku, allEvents],
   );
 
-  const handleSortBy = (column: SortColumn) => {
-    if (sortColumn === column) {
-      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
+  // フィルタ等で件数が減ってページが総ページ数を超えた場合は1ページ目に戻す
+  const totalPages = getTotalPages(filteredTanzaku.length, PAGE_SIZE);
+  const currentPage = clampPage(page, totalPages);
+
+  const pagedTanzaku = useMemo(
+    () => paginateTanzakus(sortedTanzaku, currentPage, PAGE_SIZE),
+    [sortedTanzaku, currentPage],
+  );
+
+  const handleSortBy = useCallback(
+    (column: SortColumn) => {
+      setSortDirection((prevDirection) =>
+        column === sortColumn
+          ? prevDirection === "asc"
+            ? "desc"
+            : "asc"
+          : "asc",
+      );
       setSortColumn(column);
-      setSortDirection("asc");
-    }
-  };
+      setPage(1);
+    },
+    [sortColumn],
+  );
 
   const handleExportCsv = () => {
     if (filteredTanzaku.length === 0) {
@@ -161,29 +215,38 @@ export const AdminDashboard: React.FC = () => {
     [credentials, handleError, loadData, showMessage],
   );
 
-  const handleDelete = (id: string) => {
-    if (!confirm("この短冊を削除しますか？")) return;
-    runOperations([{ id, operation: "delete" }], "削除しました");
-  };
+  const handleDelete = useCallback(
+    (id: string) => {
+      if (!confirm("この短冊を削除しますか？")) return;
+      runOperations([{ id, operation: "delete" }], "削除しました");
+    },
+    [runOperations],
+  );
 
-  const handleHardDelete = (id: string) => {
-    if (!confirm("この短冊を完全削除しますか？この操作は元に戻せません。"))
-      return;
-    runOperations([{ id, operation: "hardDelete" }], "完全削除しました");
-  };
+  const handleHardDelete = useCallback(
+    (id: string) => {
+      if (!confirm("この短冊を完全削除しますか？この操作は元に戻せません。"))
+        return;
+      runOperations([{ id, operation: "hardDelete" }], "完全削除しました");
+    },
+    [runOperations],
+  );
 
-  const handleToggleValidation = (tanzaku: ManageTanzaku) => {
-    runOperations(
-      [
-        {
-          id: tanzaku.id,
-          operation: "update",
-          validationResult: tanzaku.validationResult === 0 ? 1 : 0,
-        },
-      ],
-      "バリデーション結果を更新しました",
-    );
-  };
+  const handleToggleValidation = useCallback(
+    (tanzaku: ManageTanzaku) => {
+      runOperations(
+        [
+          {
+            id: tanzaku.id,
+            operation: "update",
+            validationResult: tanzaku.validationResult === 0 ? 1 : 0,
+          },
+        ],
+        "バリデーション結果を更新しました",
+      );
+    },
+    [runOperations],
+  );
 
   const selectedList = [...selectedIds];
 
@@ -234,7 +297,7 @@ export const AdminDashboard: React.FC = () => {
     );
   };
 
-  const handleToggleSelect = (id: string) => {
+  const handleToggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -244,7 +307,7 @@ export const AdminDashboard: React.FC = () => {
       }
       return next;
     });
-  };
+  }, []);
 
   const allSelected =
     sortedTanzaku.length > 0 &&
@@ -330,6 +393,46 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const renderActions = useCallback(
+    (tanzaku: ManageTanzaku) => (
+      <div className="flex flex-wrap gap-1">
+        <button
+          type="button"
+          onClick={() => setModal({ mode: "edit", tanzaku })}
+          className={`${primaryBtn} ${smallBtn}`}
+        >
+          編集
+        </button>
+        {!tanzaku.logicalDelete && (
+          <button
+            type="button"
+            onClick={() => handleDelete(tanzaku.id)}
+            className={`${dangerBtn} ${smallBtn}`}
+          >
+            削除
+          </button>
+        )}
+        {tanzaku.logicalDelete && (
+          <button
+            type="button"
+            onClick={() => handleHardDelete(tanzaku.id)}
+            className={`${dangerBtn} ${smallBtn}`}
+          >
+            完全削除
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => handleToggleValidation(tanzaku)}
+          className={`${primaryBtn} ${smallBtn}`}
+        >
+          {tanzaku.validationResult === 0 ? "不適切にする" : "適切にする"}
+        </button>
+      </div>
+    ),
+    [handleDelete, handleHardDelete, handleToggleValidation],
+  );
+
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-[#333]">
       <div className="flex items-center justify-between bg-[#2c3e50] px-8 py-4 text-white shadow">
@@ -370,13 +473,19 @@ export const AdminDashboard: React.FC = () => {
             <input
               type="text"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
               placeholder="内容またはユーザー名で検索..."
               className="w-[300px] rounded border border-[#bdc3c7] p-2 text-sm focus:border-[#3498db] focus:outline-none"
             />
             <button
               type="button"
-              onClick={() => setSearchTerm("")}
+              onClick={() => {
+                setSearchTerm("");
+                setPage(1);
+              }}
               className="cursor-pointer p-2 text-[#7f8c8d] hover:text-[#3498db]"
             >
               ✕
@@ -388,8 +497,13 @@ export const AdminDashboard: React.FC = () => {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={loadData} className={primaryBtn}>
-              データ更新
+            <button
+              type="button"
+              onClick={loadData}
+              disabled={isLoading}
+              className={`${primaryBtn} disabled:cursor-not-allowed disabled:opacity-50`}
+            >
+              {isLoading ? "更新中..." : "データ更新"}
             </button>
             <button
               type="button"
@@ -407,35 +521,50 @@ export const AdminDashboard: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setStatusFilter("all")}
+              onClick={() => {
+                setStatusFilter("all");
+                setPage(1);
+              }}
               className={warningBtn}
             >
               全て表示
             </button>
             <button
               type="button"
-              onClick={() => setStatusFilter("valid")}
+              onClick={() => {
+                setStatusFilter("valid");
+                setPage(1);
+              }}
               className={warningBtn}
             >
               適切のみ
             </button>
             <button
               type="button"
-              onClick={() => setStatusFilter("invalid")}
+              onClick={() => {
+                setStatusFilter("invalid");
+                setPage(1);
+              }}
               className={warningBtn}
             >
               不適切のみ
             </button>
             <button
               type="button"
-              onClick={() => setStatusFilter("deleted")}
+              onClick={() => {
+                setStatusFilter("deleted");
+                setPage(1);
+              }}
               className={warningBtn}
             >
               削除済みのみ
             </button>
             <select
               value={eventFilter}
-              onChange={(e) => setEventFilter(e.target.value)}
+              onChange={(e) => {
+                setEventFilter(e.target.value);
+                setPage(1);
+              }}
               className="ml-2 rounded border border-[#bdc3c7] bg-white p-2 text-sm"
             >
               <option value="all">イベント: すべて</option>
@@ -459,7 +588,7 @@ export const AdminDashboard: React.FC = () => {
                   checked={allSelected}
                   onChange={handleToggleSelectAll}
                 />
-                全選択
+                全選択（全{sortedTanzaku.length}件）
               </label>
               <button
                 type="button"
@@ -492,50 +621,19 @@ export const AdminDashboard: React.FC = () => {
             </div>
           )}
           <TanzakuTable
-            tanzakus={sortedTanzaku}
+            tanzakus={pagedTanzaku}
             sortColumn={sortColumn}
             sortDirection={sortDirection}
             onSortBy={handleSortBy}
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
-            renderActions={(tanzaku) => (
-              <div className="flex flex-wrap gap-1">
-                <button
-                  type="button"
-                  onClick={() => setModal({ mode: "edit", tanzaku })}
-                  className={`${primaryBtn} ${smallBtn}`}
-                >
-                  編集
-                </button>
-                {!tanzaku.logicalDelete && (
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(tanzaku.id)}
-                    className={`${dangerBtn} ${smallBtn}`}
-                  >
-                    削除
-                  </button>
-                )}
-                {tanzaku.logicalDelete && (
-                  <button
-                    type="button"
-                    onClick={() => handleHardDelete(tanzaku.id)}
-                    className={`${dangerBtn} ${smallBtn}`}
-                  >
-                    完全削除
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => handleToggleValidation(tanzaku)}
-                  className={`${primaryBtn} ${smallBtn}`}
-                >
-                  {tanzaku.validationResult === 0
-                    ? "不適切にする"
-                    : "適切にする"}
-                </button>
-              </div>
-            )}
+            renderActions={renderActions}
+          />
+          <Pagination
+            page={currentPage}
+            totalItems={filteredTanzaku.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={setPage}
           />
         </div>
       </div>

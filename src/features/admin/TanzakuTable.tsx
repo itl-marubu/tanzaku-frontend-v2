@@ -1,4 +1,5 @@
 import type { ManageTanzaku } from "@/api/adminClient";
+import { memo } from "react";
 import type { SortColumn, SortDirection } from "./tanzakuFilters";
 
 const sortableColumns: { key: SortColumn; label: string }[] = [
@@ -9,6 +10,16 @@ const sortableColumns: { key: SortColumn; label: string }[] = [
 ];
 
 const thClass = "bg-[#34495e] p-4 text-left font-semibold text-white";
+
+// toLocaleString("ja-JP") 相当の表示を毎レンダー生成しないよう使い回す
+const dateFormatter = new Intl.DateTimeFormat("ja-JP", {
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+});
 
 const SortButton: React.FC<{
   label: string;
@@ -51,6 +62,50 @@ function validationBadge(tanzaku: ManageTanzaku) {
   );
 }
 
+type TanzakuRowProps = {
+  tanzaku: ManageTanzaku;
+  selected: boolean;
+  onToggleSelect?: (id: string) => void;
+  renderActions?: (tanzaku: ManageTanzaku) => React.ReactNode;
+};
+
+const TanzakuRow = memo(function TanzakuRow({
+  tanzaku,
+  selected,
+  onToggleSelect,
+  renderActions,
+}: TanzakuRowProps) {
+  return (
+    <tr className="border-b border-[#ecf0f1] hover:bg-[#f8f9fa]">
+      {onToggleSelect && (
+        <td className="p-4">
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => onToggleSelect(tanzaku.id)}
+          />
+        </td>
+      )}
+      <td className="p-4">{tanzaku.id.substring(0, 8)}...</td>
+      <td className="p-4">{tanzaku.content}</td>
+      <td className="p-4">{tanzaku.userName}</td>
+      <td className="p-4">{validationBadge(tanzaku)}</td>
+      <td className="p-4">{statusBadge(tanzaku)}</td>
+      <td className="p-4">
+        {tanzaku.event ? (
+          tanzaku.event.name
+        ) : (
+          <span className="text-[#aaa]">-</span>
+        )}
+      </td>
+      <td className="p-4">
+        {dateFormatter.format(new Date(tanzaku.createdAt))}
+      </td>
+      {renderActions && <td className="p-4">{renderActions(tanzaku)}</td>}
+    </tr>
+  );
+});
+
 type TanzakuTableProps = {
   tanzakus: ManageTanzaku[];
   sortColumn: SortColumn;
@@ -61,7 +116,7 @@ type TanzakuTableProps = {
   renderActions?: (tanzaku: ManageTanzaku) => React.ReactNode;
 };
 
-export const TanzakuTable: React.FC<TanzakuTableProps> = ({
+export const TanzakuTable = memo(function TanzakuTable({
   tanzakus,
   sortColumn,
   sortDirection,
@@ -69,7 +124,7 @@ export const TanzakuTable: React.FC<TanzakuTableProps> = ({
   selectedIds,
   onToggleSelect,
   renderActions,
-}) => {
+}: TanzakuTableProps) {
   const sortIcon = (column: SortColumn) =>
     column === sortColumn ? (sortDirection === "asc" ? "▲" : "▼") : "";
 
@@ -119,41 +174,16 @@ export const TanzakuTable: React.FC<TanzakuTableProps> = ({
           </tr>
         ) : (
           tanzakus.map((tanzaku) => (
-            <tr
+            <TanzakuRow
               key={tanzaku.id}
-              className="border-b border-[#ecf0f1] hover:bg-[#f8f9fa]"
-            >
-              {onToggleSelect && (
-                <td className="p-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds?.has(tanzaku.id) ?? false}
-                    onChange={() => onToggleSelect(tanzaku.id)}
-                  />
-                </td>
-              )}
-              <td className="p-4">{tanzaku.id.substring(0, 8)}...</td>
-              <td className="p-4">{tanzaku.content}</td>
-              <td className="p-4">{tanzaku.userName}</td>
-              <td className="p-4">{validationBadge(tanzaku)}</td>
-              <td className="p-4">{statusBadge(tanzaku)}</td>
-              <td className="p-4">
-                {tanzaku.event ? (
-                  tanzaku.event.name
-                ) : (
-                  <span className="text-[#aaa]">-</span>
-                )}
-              </td>
-              <td className="p-4">
-                {new Date(tanzaku.createdAt).toLocaleString("ja-JP")}
-              </td>
-              {renderActions && (
-                <td className="p-4">{renderActions(tanzaku)}</td>
-              )}
-            </tr>
+              tanzaku={tanzaku}
+              selected={selectedIds?.has(tanzaku.id) ?? false}
+              onToggleSelect={onToggleSelect}
+              renderActions={renderActions}
+            />
           ))
         )}
       </tbody>
     </table>
   );
-};
+});
