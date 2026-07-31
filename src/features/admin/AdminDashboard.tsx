@@ -85,6 +85,7 @@ export const AdminDashboard: React.FC = () => {
 
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLoadingRef = useRef(false);
+  const pendingReloadRef = useRef(false);
 
   const showMessage = useCallback(
     (type: "success" | "error" | "info", text: string) => {
@@ -123,20 +124,30 @@ export const AdminDashboard: React.FC = () => {
 
   const loadData = useCallback(async () => {
     if (!credentials) return;
-    if (isLoadingRef.current) return;
+    // 取得中に来た再取得は捨てずに予約し、現在の取得の完了後に必ず1回走らせる。
+    // 単純に早期 return すると、更新系操作の直後の再取得が取りこぼされ、
+    // 先行する取得が返した更新前のデータが一覧に残ってしまう。
+    if (isLoadingRef.current) {
+      pendingReloadRef.current = true;
+      return;
+    }
     isLoadingRef.current = true;
     setIsLoading(true);
     try {
-      const [tanzakus, events] = await Promise.all([
-        getTanzakus(credentials),
-        getEvents(credentials),
-      ]);
-      setAllTanzaku(tanzakus);
-      setAllEvents(events);
+      do {
+        pendingReloadRef.current = false;
+        const [tanzakus, events] = await Promise.all([
+          getTanzakus(credentials),
+          getEvents(credentials),
+        ]);
+        setAllTanzaku(tanzakus);
+        setAllEvents(events);
+      } while (pendingReloadRef.current);
       showMessage("success", "データを更新しました");
     } catch (error) {
       handleError(error, "エラー: データの取得に失敗しました");
     } finally {
+      pendingReloadRef.current = false;
       isLoadingRef.current = false;
       setIsLoading(false);
     }
