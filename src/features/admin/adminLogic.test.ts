@@ -1,7 +1,14 @@
 import type { ManageEvent, ManageTanzaku } from "@/api/adminClient";
 import { describe, expect, it } from "vitest";
 import { buildCsvFilename, buildTanzakuCsv } from "./csvExport";
-import { computeStats, filterTanzakus, sortTanzakus } from "./tanzakuFilters";
+import {
+  clampPage,
+  computeStats,
+  filterTanzakus,
+  getTotalPages,
+  paginateTanzakus,
+  sortTanzakus,
+} from "./tanzakuFilters";
 
 const makeTanzaku = (
   overrides: Partial<ManageTanzaku> & { id: string },
@@ -132,6 +139,44 @@ describe("buildTanzakuCsv", () => {
       makeTanzaku({ id: "q", content: 'say "hi"' }),
     ]);
     expect(csv).toContain('"say ""hi"""');
+  });
+});
+
+describe("getTotalPages", () => {
+  it("件数をページサイズで割って切り上げる", () => {
+    expect(getTotalPages(120, 50)).toBe(3);
+    expect(getTotalPages(100, 50)).toBe(2);
+  });
+
+  it("0件でも最低1ページ", () => {
+    expect(getTotalPages(0, 50)).toBe(1);
+  });
+});
+
+describe("clampPage", () => {
+  it("範囲内ならそのまま", () => {
+    expect(clampPage(2, 3)).toBe(2);
+  });
+
+  it("総ページ数を超えたら1ページ目に戻す", () => {
+    expect(clampPage(5, 3)).toBe(1);
+  });
+
+  it("0以下も1ページ目に戻す", () => {
+    expect(clampPage(0, 3)).toBe(1);
+  });
+});
+
+describe("paginateTanzakus", () => {
+  const many = Array.from({ length: 120 }, (_, i) =>
+    makeTanzaku({ id: String(i) }),
+  );
+
+  it("指定ページ分だけ切り出す", () => {
+    expect(paginateTanzakus(many, 1, 50)).toHaveLength(50);
+    expect(paginateTanzakus(many, 1, 50)[0].id).toBe("0");
+    expect(paginateTanzakus(many, 3, 50)).toHaveLength(20);
+    expect(paginateTanzakus(many, 3, 50)[0].id).toBe("100");
   });
 });
 

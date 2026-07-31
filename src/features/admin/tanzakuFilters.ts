@@ -69,6 +69,26 @@ export function sortTanzakus(
   });
 }
 
+// 総ページ数を算出する（0件でも最低1ページ扱いにする）
+export function getTotalPages(totalItems: number, pageSize: number): number {
+  return Math.max(1, Math.ceil(totalItems / pageSize));
+}
+
+// フィルタ変更等で総ページ数を超えた場合は1ページ目に戻す
+export function clampPage(page: number, totalPages: number): number {
+  if (page < 1 || page > totalPages) return 1;
+  return page;
+}
+
+export function paginateTanzakus(
+  list: ManageTanzaku[],
+  page: number,
+  pageSize: number,
+): ManageTanzaku[] {
+  const start = (page - 1) * pageSize;
+  return list.slice(start, start + pageSize);
+}
+
 export type TanzakuStats = {
   total: number;
   valid: number;
