@@ -119,16 +119,11 @@ export function TanzakuCanvas({
     }
   };
 
-  // 七夕の縦書きは canvas 要素の CSS writing-mode に依存している（ブラウザは
-  // ctx.font 設定時に要素の算出スタイルからフォントの向きを解決する）。
-  // 以前は描画関数内で canvas.style.writingMode を書き換えていたが、
-  // ・モード切替時に同じ canvas 要素が使い回され、桜モードで解決済みの
-  //   横書きフォント/スタイルが残ったまま七夕を描画してしまう
-  // ・style 変更直後の ctx.font が古い算出スタイルを参照し得る
-  // ため、切替後も横書きのままになることがあった。
-  // そこで (1) writing-mode を JSX の style で宣言し、要素が DOM に挿入された
-  // 時点から確定させる (2) key={mode} でモードごとに canvas 要素(=2D
-  // コンテキスト)を作り直し、初回表示と同じ条件で描画させる。
+  // 七夕の縦書きは fillVerticalText（lib/canvasDraw）が1文字ずつ正立させて
+  // 描く。canvas 要素の writing-mode が縦だと、それを反映する古い Chrome では
+  // 正立させた文字がさらに回って横倒しになるため、両モードとも
+  // writing-mode: horizontal-tb を明示する。key={mode} でモードごとに
+  // canvas 要素(=2D コンテキスト)を作り直し、切替前の状態を持ち越さない。
   if (isTanzaku) {
     return (
       <canvas
@@ -137,7 +132,7 @@ export function TanzakuCanvas({
         ref={setRefs}
         width={TANABATA_CANVAS.width}
         height={TANABATA_CANVAS.height}
-        style={{ ...props.style, writingMode: "vertical-rl" }}
+        style={{ ...props.style, writingMode: "horizontal-tb" }}
         className={["animate-yureru", props.className]
           .filter(Boolean)
           .join(" ")}
