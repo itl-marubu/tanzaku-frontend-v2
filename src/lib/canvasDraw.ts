@@ -22,13 +22,82 @@ export function drawTanabataCard(
   ctx.save();
   ctx.translate(45, 100);
   ctx.rotate((85 * Math.PI) / 180);
-  ctx.canvas.style.writingMode = "vertical-rl";
-  ctx.font = `50px ${TANZAKU_FONT}`;
+  // 回転後の座標系は +x が行の進む向き（短冊の下方向）。縦書きは
+  // fillVerticalText で一文字ずつ正立させて描く（理由は同関数のコメント参照）。
   ctx.fillStyle = "black";
-  ctx.fillText(textLine1, 25, -110);
-  ctx.fillText(textLine2 || "", 40, -50);
-  ctx.font = `30px ${TANZAKU_FONT}`;
-  ctx.fillText(nameLine, 150, -10);
+  fillVerticalText(ctx, textLine1, 25, -110, 50);
+  fillVerticalText(ctx, textLine2 || "", 40, -50, 50);
+  fillVerticalText(ctx, nameLine, 150, -10, 30);
+  ctx.restore();
+}
+
+// 縦書きでも横倒しのまま描く文字（伸ばし棒・ダッシュ・括弧類など）
+const SIDEWAYS_CHARS = /[ー－―—‐~～〜…‥()（）「」『』【】［］[\]〔〕＜＞<>＝=]/;
+// 縦書きで字面の右上に寄せる文字
+const SMALL_KANA = /[ぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶ]/;
+const PUNCTUATION = /[、。，．]/;
+const HALF_WIDTH = /^[\x20-\x7e]$/;
+
+export type VerticalGlyph =
+  | { kind: "sideways" }
+  | { kind: "upright"; shiftUp: number; shiftRight: number };
+
+// 1文字を縦書きでどう置くかを決める純粋関数。shift は文字サイズに対する比率。
+export function verticalGlyph(ch: string): VerticalGlyph {
+  if (HALF_WIDTH.test(ch) || SIDEWAYS_CHARS.test(ch)) {
+    return { kind: "sideways" };
+  }
+  if (PUNCTUATION.test(ch)) {
+    return { kind: "upright", shiftUp: 0.55, shiftRight: 0.55 };
+  }
+  if (SMALL_KANA.test(ch)) {
+    return { kind: "upright", shiftUp: 0.08, shiftRight: 0.12 };
+  }
+  return { kind: "upright", shiftUp: 0, shiftRight: 0 };
+}
+
+// 回転済み座標系（+x = 行の進む向き）に、text を縦書きで描く。
+//
+// 以前は canvas 要素に CSS writing-mode: vertical-rl を付けて fillText の
+// 向きを縦にしていたが、これは Chrome 固有の挙動で、Chrome 158 では
+// canvas の文字の向きに writing-mode が効かず、文字が横倒しになる
+// （Canvas API の文字描画は仕様上つねに横書き）。そこで writing-mode には
+// 頼らず、全角文字は1文字ずつ -90° 回して正立させ、伸ばし棒や半角英数は
+// 縦書き本来の向き（横倒し）のまま並べる。
+// (x, y) は旧実装の fillText と同じ値を受け取り、見た目が旧実装の縦書きと
+// 重なるよう列の中心を 0.32 文字ぶん右へ寄せている。
+export function fillVerticalText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+) {
+  ctx.save();
+  ctx.font = `${size}px ${TANZAKU_FONT}`;
+  ctx.textBaseline = "middle";
+  const center = y - size * 0.32;
+  let pos = x;
+  for (const ch of Array.from(text)) {
+    const glyph = verticalGlyph(ch);
+    if (glyph.kind === "sideways") {
+      const isHalfWidth = HALF_WIDTH.test(ch);
+      ctx.textAlign = "left";
+      ctx.fillText(ch, pos, center);
+      pos += isHalfWidth ? ctx.measureText(ch).width : size;
+      continue;
+    }
+    ctx.save();
+    ctx.translate(
+      pos + size / 2 - size * glyph.shiftUp,
+      center - size * glyph.shiftRight,
+    );
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = "center";
+    ctx.fillText(ch, 0, 0);
+    ctx.restore();
+    pos += size;
+  }
   ctx.restore();
 }
 
@@ -36,9 +105,6 @@ export function drawSakuraCard(
   ctx: CanvasRenderingContext2D,
   { textLine1, textLine2, nameLine }: TanzakuTextInput,
 ) {
-  // 短冊モードで設定された縦書きが要素に残らないよう明示的に横書きへ戻す
-  ctx.canvas.style.writingMode = "horizontal-tb";
-
   const scale = 0.75;
   const cardWidth = 500 * scale;
   const cardHeight = 300 * scale;

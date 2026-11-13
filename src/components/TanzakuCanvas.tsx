@@ -119,13 +119,20 @@ export function TanzakuCanvas({
     }
   };
 
+  // 七夕の縦書きは fillVerticalText（lib/canvasDraw）が1文字ずつ正立させて
+  // 描く。canvas 要素の writing-mode が縦だと、それを反映する古い Chrome では
+  // 正立させた文字がさらに回って横倒しになるため、両モードとも
+  // writing-mode: horizontal-tb を明示する。key={mode} でモードごとに
+  // canvas 要素(=2D コンテキスト)を作り直し、切替前の状態を持ち越さない。
   if (isTanzaku) {
     return (
       <canvas
         {...props}
+        key="tanabata"
         ref={setRefs}
         width={TANABATA_CANVAS.width}
         height={TANABATA_CANVAS.height}
+        style={{ ...props.style, writingMode: "horizontal-tb" }}
         className={["animate-yureru", props.className]
           .filter(Boolean)
           .join(" ")}
@@ -136,9 +143,11 @@ export function TanzakuCanvas({
   return (
     <canvas
       {...props}
+      key="sakura"
       ref={setRefs}
       width={SAKURA_CANVAS.width}
       height={SAKURA_CANVAS.height}
+      style={{ ...props.style, writingMode: "horizontal-tb" }}
     />
   );
 }
