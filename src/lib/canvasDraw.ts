@@ -22,7 +22,8 @@ export function drawTanabataCard(
   ctx.save();
   ctx.translate(45, 100);
   ctx.rotate((85 * Math.PI) / 180);
-  ctx.canvas.style.writingMode = "vertical-rl";
+  // 縦書き(writing-mode: vertical-rl)は描画関数ではなく TanzakuCanvas が
+  // canvas 要素の style として宣言する。理由は TanzakuCanvas.tsx のコメント参照。
   ctx.font = `50px ${TANZAKU_FONT}`;
   ctx.fillStyle = "black";
   ctx.fillText(textLine1, 25, -110);
@@ -36,9 +37,6 @@ export function drawSakuraCard(
   ctx: CanvasRenderingContext2D,
   { textLine1, textLine2, nameLine }: TanzakuTextInput,
 ) {
-  // 短冊モードで設定された縦書きが要素に残らないよう明示的に横書きへ戻す
-  ctx.canvas.style.writingMode = "horizontal-tb";
-
   const scale = 0.75;
   const cardWidth = 500 * scale;
   const cardHeight = 300 * scale;
